@@ -29,7 +29,7 @@ Bonus   — Solidify        → lock in every concept
 ### Tier 1 — Foundations
 | # | Project | Main Concept | Live | Status |
 |---|---------|--------------|------|--------|
-| 01 | [DevLinks](./tier-1-foundations/01-devlinks) | DOM mastery | [Demo](#) | ⬜ |
+| 01 | [DevLinks](./tier-1-foundations\01-devlinks) | DOM mastery | [Demo](#) | ⬜ |
 | 02 | [ExpenseIQ](./tier-1-foundations/02-expenseiq) | Code organization | [Demo](#) | ⬜ |
 | 03 | [Book Library](./tier-1-foundations/03-book-library) | OOP | [Demo](#) | ⬜ |
 | 04 | [Shopping Cart](./tier-1-foundations/04-shopping-cart) | State management | [Demo](#) | ⬜ |
