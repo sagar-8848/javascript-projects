@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevLinks</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- ── HEADER ── -->
+    <header class="header">
+      <div class="header__inner">
+        <h1 class="header__logo">🔗 DevLinks</h1>
+        <p class="header__sub">All your dev profiles in one place</p>
+      </div>
+    </header>
+
+    <!-- ── MAIN ── -->
+    <main class="main">
+      <!-- ADD LINK FORM -->
+      <section class="form-section">
+        <form id="link-form" class="form" novalidate>
+          <div class="form__group">
+            <label for="title-input" class="form__label">Title</label>
+            <input
+              type="text"
+              id="title-input"
+              class="form__input"
+              placeholder="e.g. GitHub"
+              autocomplete="off"
+            />
+          </div>
+          <div class="form__group">
+            <label for="url-input" class="form__label">URL</label>
+            <input
+              type="url"
+              id="url-input"
+              class="form__input"
+              placeholder="e.g. https://github.com/sagar-8848"
+              autocomplete="off"
+            />
+          </div>
+          <button type="submit" class="btn btn--primary">+ Add Link</button>
+        </form>
+
+        <!-- ERROR MESSAGE -->
+        <p id="error-msg" class="form__error hidden"></p>
+      </section>
+
+      <!-- LINKS LIST -->
+      <section class="links-section">
+        <div class="links-section__header">
+          <h2 class="links-section__title">My Links</h2>
+          <span id="link-count" class="links-section__count">0 links</span>
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div id="empty-state" class="empty-state">
+          <p class="empty-state__icon">🗂️</p>
+          <p class="empty-state__text">No links yet</p>
+          <p class="empty-state__sub">Add your first dev link above</p>
+        </div>
+
+        <!-- LINKS RENDER HERE -->
+        <div id="links-container" class="links-container"></div>
+      </section>
+    </main>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="toast hidden">
+      <span id="toast-msg"></span>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
