@@ -3,6 +3,29 @@ const cardContainer = document.getElementById("links-container");
 const toastContainer = document.getElementById("toast");
 const toastMsg = document.getElementById("toast-msg");
 const NoOfLinks = document.getElementById("link-count");
+const emptyState = document.getElementById("empty-state");
+
+const copyIcon = `  <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="green"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-clipboard-list-icon lucide-clipboard-list"
+      >
+        <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+        <path d="M12 11h4" />
+        <path d="M12 16h4" />
+        <path d="M8 11h.01" />
+        <path d="M8 16h.01" />
+      </svg>`;
+
+const deleteIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2-icon lucide-trash-2"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
 
 const links = loadLinks();
 renderLinks();
@@ -27,7 +50,6 @@ function saveLinks() {
 
 function renderLinks() {
   countLinks();
-  const emptyState = document.getElementById("empty-state");
 
   if (links.length === 0) {
     emptyState.classList.remove("hidden");
@@ -49,24 +71,23 @@ function renderLinks() {
     // * creating copy button
     const copyBtn = document.createElement("button");
     copyBtn.classList.add("copy-btn");
-    copyBtn.textContent = "copy";
+    copyBtn.innerHTML = copyIcon;
 
     // * adding event listener to the copyBtn
 
     copyBtn.addEventListener("click", () => {
       navigator.clipboard.writeText(curElem.url);
-
-      toastContainer.classList.remove("hidden");
       toastMessage("successfully copied!");
     });
 
     // ? creating delete button
     const dltBtn = document.createElement("button");
     dltBtn.classList.add("dlt-btn");
-    dltBtn.textContent = "delte";
+    dltBtn.innerHTML = deleteIcon;
     // ? adding event listener to the dlt button
     dltBtn.addEventListener("click", () => {
       links.splice(index, 1);
+      toastMessage("deleted successfully!");
       saveLinks();
       renderLinks();
     });
@@ -78,8 +99,11 @@ function renderLinks() {
     title.classList.add("link-card__title");
     title.textContent = curElem.title;
 
-    const url = document.createElement("div");
+    const url = document.createElement("a");
     url.classList.add("link-card__url");
+    url.setAttribute("href", `${curElem.url}`);
+    url.setAttribute("target", "_blank");
+    url.setAttribute("rel", "noopener noreferrer");
     url.textContent = curElem.url;
 
     actionContainer.appendChild(copyBtn);
@@ -106,7 +130,25 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const titleValue = titleInput.value.trim();
-  const urlValue = urlInput.value.trim();
+  let urlValue = urlInput.value.trim();
+
+  // * adding validation logics
+
+  const validationCheck =
+    urlValue.startsWith("https://") || urlValue.startsWith("http://");
+
+  if (!validationCheck) {
+    urlValue = `https://${urlValue}`;
+  }
+
+  try {
+    new URL(urlValue);
+  } catch (err) {
+    console.log("invalid url");
+
+    toastMessage("the url is not valid!");
+    return;
+  }
 
   if (titleValue.length === 0 || urlValue.length === 0) {
     return;
@@ -135,11 +177,12 @@ function countLinks() {
 // * function show toast message
 
 function toastMessage(msg) {
+  toastContainer.classList.remove("hidden");
   toastMsg.textContent = msg;
 
   setTimeout(() => {
     toastContainer.classList.add("hidden");
-  }, 2000);
+  }, 1500);
 }
 
 // * reset the form after the user submits
