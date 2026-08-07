@@ -42,15 +42,15 @@ function loadLinks() {
 }
 
 function saveLinks() {
-  const strigifiedLinks = JSON.stringify(links);
-  localStorage.setItem("devlinks", strigifiedLinks);
+  const stringifiedLinks = JSON.stringify(links);
+  localStorage.setItem("devlinks", stringifiedLinks);
 }
 
 // ? getting the elements from HTML
 
 function renderLinks() {
   countLinks();
-
+  // * if the array is empty, return
   if (links.length === 0) {
     emptyState.classList.remove("hidden");
     cardContainer.innerHTML = "";
@@ -75,9 +75,13 @@ function renderLinks() {
 
     // * adding event listener to the copyBtn
 
-    copyBtn.addEventListener("click", () => {
-      navigator.clipboard.writeText(curElem.url);
-      toastMessage("successfully copied!");
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(curElem.url);
+        toastMessage("Copied!");
+      } catch {
+        toastMessage("Copy failed!");
+      }
     });
 
     // ? creating delete button
@@ -131,6 +135,12 @@ form.addEventListener("submit", (e) => {
 
   const titleValue = titleInput.value.trim();
   let urlValue = urlInput.value.trim();
+  // * first validation, if any field is empty, then show an toast message
+
+  if (!titleValue || !urlValue) {
+    toastMessage("⚠️ Fill in both fields!");
+    return;
+  }
 
   // * adding validation logics
 
@@ -150,7 +160,13 @@ form.addEventListener("submit", (e) => {
     return;
   }
 
-  if (titleValue.length === 0 || urlValue.length === 0) {
+  const isDuplicate = links.some(
+    (curElem) =>
+      curElem.url.trim().toLowerCase() === urlValue.trim().toLowerCase(),
+  );
+
+  if (isDuplicate) {
+    toastMessage("⚠️ link already exists!");
     return;
   }
 
@@ -162,6 +178,7 @@ form.addEventListener("submit", (e) => {
   links.push(linkObj);
   saveLinks();
   renderLinks();
+  toastMessage("link added success!");
 
   // ? reset the form
   resetForm();
