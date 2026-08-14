@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ExpenseIQ</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- ── HEADER ── -->
+    <header class="header">
+      <div class="header__inner">
+        <h1 class="header__logo">💰 ExpenseIQ</h1>
+        <p class="header__sub">Track every rupee you spend</p>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- ── STATS ROW ── -->
+      <section class="stats">
+        <div class="stat-card">
+          <p class="stat-card__label">Total Spent</p>
+          <p class="stat-card__value" id="stat-total">Rs. 0</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-card__label">Highest</p>
+          <p class="stat-card__value" id="stat-highest">Rs. 0</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-card__label">This Month</p>
+          <p class="stat-card__value" id="stat-month">Rs. 0</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-card__label">Total Entries</p>
+          <p class="stat-card__value" id="stat-count">0</p>
+        </div>
+      </section>
+
+      <!-- ── ADD EXPENSE FORM ── -->
+      <section class="form-section">
+        <h2 class="form-section__title">Add Expense</h2>
+        <form id="expense-form" class="form" novalidate>
+          <div class="form__row">
+            <div class="form__group">
+              <label for="title-input" class="form__label">Title</label>
+              <input
+                type="text"
+                id="title-input"
+                class="form__input"
+                placeholder="e.g. Lunch"
+                autocomplete="off"
+              />
+            </div>
+            <div class="form__group">
+              <label for="amount-input" class="form__label">Amount (Rs.)</label>
+              <input
+                type="number"
+                id="amount-input"
+                class="form__input"
+                placeholder="e.g. 250"
+                min="1"
+              />
+            </div>
+          </div>
+
+          <div class="form__row">
+            <div class="form__group">
+              <label for="category-input" class="form__label">Category</label>
+              <select id="category-input" class="form__input form__select">
+                <option value="">Select category</option>
+                <option value="Food">🍕 Food</option>
+                <option value="Transport">🚌 Transport</option>
+                <option value="Shopping">🛍️ Shopping</option>
+                <option value="Education">📚 Education</option>
+                <option value="Health">💊 Health</option>
+                <option value="Entertainment">🎮 Entertainment</option>
+                <option value="Bills">💡 Bills</option>
+                <option value="Other">📦 Other</option>
+              </select>
+            </div>
+            <div class="form__group">
+              <label for="date-input" class="form__label">Date</label>
+              <input type="date" id="date-input" class="form__input" />
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn--primary">+ Add Expense</button>
+        </form>
+        <p id="error-msg" class="form__error hidden"></p>
+      </section>
+
+      <!-- ── FILTERS + SEARCH ── -->
+      <section class="filter-section">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="search-input"
+            class="search-input"
+            placeholder="Search expenses..."
+          />
+        </div>
+        <div class="filter-tabs" id="filter-tabs">
+          <button class="filter-tab active" data-category="All">All</button>
+          <button class="filter-tab" data-category="Food">🍕 Food</button>
+          <button class="filter-tab" data-category="Transport">
+            🚌 Transport
+          </button>
+          <button class="filter-tab" data-category="Shopping">
+            🛍️ Shopping
+          </button>
+          <button class="filter-tab" data-category="Education">
+            📚 Education
+          </button>
+          <button class="filter-tab" data-category="Health">💊 Health</button>
+          <button class="filter-tab" data-category="Entertainment">
+            🎮 Entertainment
+          </button>
+          <button class="filter-tab" data-category="Bills">💡 Bills</button>
+          <button class="filter-tab" data-category="Other">📦 Other</button>
+        </div>
+      </section>
+
+      <!-- ── EXPENSES LIST ── -->
+      <section class="expenses-section">
+        <div class="expenses-section__header">
+          <h2 class="expenses-section__title">Expenses</h2>
+          <span id="expense-count" class="expenses-section__count"
+            >0 items</span
+          >
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div id="empty-state" class="empty-state">
+          <p class="empty-state__icon">🧾</p>
+          <p class="empty-state__text">No expenses yet</p>
+          <p class="empty-state__sub">Add your first expense above</p>
+        </div>
+
+        <!-- EXPENSES RENDER HERE -->
+        <div id="expenses-container" class="expenses-container"></div>
+      </section>
+    </main>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast hidden">
+      <span id="toast-msg"></span>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
