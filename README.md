@@ -29,8 +29,8 @@ Bonus   — Solidify        → lock in every concept
 ### Tier 1 — Foundations
 | # | Project | Main Concept | Live | Status |
 |---|---------|--------------|------|--------|
-| 01 | [DevLinks](./tier-1-foundations/01-devlinks/) | DOM mastery | [Demo](https://sagar-8848.github.io/javascript-projects/tier-1-foundations/01-devlinks/index.html) | ⬜ |
-| 02 | [ExpenseIQ](./tier-1-foundations/02-expenseiq) | Code organization | [Demo](#) | ⬜ |
+| 01 | [DevLinks](./tier-1-foundations/01-devlinks/) | DOM mastery | [Demo](https://sagar-8848.github.io/javascript-projects/tier-1-foundations/01-devlinks/index.html) | ✅ |
+| 02 | [ExpenseIQ](./tier-1-foundations/02-expenseiq/) | Code organization | [Demo](https://sagar-8848.github.io/javascript-projects/tier-1-foundations/02-expenseiq/index.html) | ✅ |
 | 03 | [Book Library](./tier-1-foundations/03-book-library) | OOP | [Demo](#) | ⬜ |
 | 04 | [Shopping Cart](./tier-1-foundations/04-shopping-cart) | State management | [Demo](#) | ⬜ |
 
