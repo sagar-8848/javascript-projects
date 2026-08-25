@@ -8,10 +8,10 @@ let statusInput = document.getElementById("status-input")    // status dropdown
 let errMsg = document.getElementById("error-msg")       // error text
 
 // STATS
-document.getElementById("stat-total")      // total books
-document.getElementById("stat-read")       // read count
-document.getElementById("stat-reading")    // reading count
-document.getElementById("stat-unread")     // unread count
+let statTotal = document.getElementById("stat-total")      // total books
+let statRead = document.getElementById("stat-read")       // read count
+let statReading = document.getElementById("stat-reading")    // reading count
+let statUnread = document.getElementById("stat-unread")     // unread count
 
 // LIST
 let bookContainer = document.getElementById("books-container") // cards render here
@@ -182,6 +182,7 @@ function loadFromStorage() {
       book.id = plainObject.id;
       state.books.push(book)
     })
+    updateStats()
   }
 
   catch (err) {
@@ -210,7 +211,6 @@ searchFilter.addEventListener("input", () => {
   state.filters.search = searchedQuery;
   const filteredBooks = getFilteredBooks(state.books);
   renderBooks(filteredBooks)
-
 })
 
 function renderBooks(books) {
@@ -268,3 +268,77 @@ function renderBooks(books) {
   })
 }
 
+
+
+// * function updateStats
+
+function updateStats() {
+  // * filtering all the read books
+  const readBooks = state.books.filter(
+    (curBook) => curBook.status === "Read"
+  );
+
+  // * filtering all the undread books
+  const readingBooks = state.books.filter(
+    (curBook) => curBook.status === "Reading"
+  );
+
+  // * filtering all unread books
+  const unreadBooks = state.books.filter(
+    (curBook) => curBook.status === "Unread"
+  );
+
+  statTotal.textContent = state.books.length;
+  statRead.textContent = readBooks.length;
+  statReading.textContent = readingBooks.length;
+  statUnread.textContent = unreadBooks.length;
+
+}
+
+
+// * taking user input and add the books 
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  let titleInputValue = titleInput.value;
+  if (!titleInputValue) {
+    throw new ValidationError("title cannot be empty!", "title")
+  }
+  let authorInputValue = authorInput.value;
+  if (!authorInputValue) {
+    throw new ValidationError("author can't be empty!", "author")
+  }
+  let genreInputValue = genreInput.value;
+  if (!genreInputValue) {
+    throw new ValidationError("genre can't be empty!", "genre")
+  }
+  let yearInputValue = yearInput.value
+  if (!yearInputValue) {
+    throw new ValidationError("year can't be empty!", "year")
+  }
+  let statusInputValue = statusInput.value;
+  if (!statusInputValue) {
+    throw new ValidationError("status can't be empty!", "status")
+  }
+
+  const newBook = new Book(titleInputValue, authorInputValue, genreInputValue, yearInputValue, statusInputValue)
+  state.books.push(newBook)
+  saveToStorage()
+  updateStats()
+  renderBooks(state.books)
+  form.reset()
+})
+
+
+
+// * application initial state
+
+function init() {
+  loadFromStorage();
+  updateStats();
+  const filteredBooks = getFilteredBooks(state.books);
+  renderBooks(filteredBooks)
+}
+
+init()
