@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book Library</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- ── HEADER ── -->
+    <header class="header">
+      <div class="header__inner">
+        <h1 class="header__logo">📚 Book Library</h1>
+        <p class="header__sub">Your personal reading tracker</p>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- ── STATS ── -->
+      <section class="stats">
+        <div class="stat-card">
+          <p class="stat-card__label">Total Books</p>
+          <p class="stat-card__value" id="stat-total">0</p>
+        </div>
+        <div class="stat-card stat-card--read">
+          <p class="stat-card__label">Read</p>
+          <p class="stat-card__value" id="stat-read">0</p>
+        </div>
+        <div class="stat-card stat-card--reading">
+          <p class="stat-card__label">Reading</p>
+          <p class="stat-card__value" id="stat-reading">0</p>
+        </div>
+        <div class="stat-card stat-card--unread">
+          <p class="stat-card__label">Unread</p>
+          <p class="stat-card__value" id="stat-unread">0</p>
+        </div>
+      </section>
+
+      <!-- ── ADD BOOK FORM ── -->
+      <section class="form-section">
+        <h2 class="form-section__title">Add Book</h2>
+        <form id="book-form" class="form" novalidate>
+          <div class="form__row">
+            <div class="form__group">
+              <label for="title-input" class="form__label">Title</label>
+              <input
+                type="text"
+                id="title-input"
+                class="form__input"
+                placeholder="e.g. Atomic Habits"
+                autocomplete="off"
+              />
+            </div>
+            <div class="form__group">
+              <label for="author-input" class="form__label">Author</label>
+              <input
+                type="text"
+                id="author-input"
+                class="form__input"
+                placeholder="e.g. James Clear"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+
+          <div class="form__row">
+            <div class="form__group">
+              <label for="genre-input" class="form__label">Genre</label>
+              <select id="genre-input" class="form__input form__select">
+                <option value="">Select genre</option>
+                <option value="Fiction">📖 Fiction</option>
+                <option value="Non-Fiction">📰 Non-Fiction</option>
+                <option value="Self Help">🧠 Self Help</option>
+                <option value="Technology">💻 Technology</option>
+                <option value="Science">🔬 Science</option>
+                <option value="History">🏛️ History</option>
+                <option value="Biography">👤 Biography</option>
+                <option value="Philosophy">💭 Philosophy</option>
+                <option value="Other">📦 Other</option>
+              </select>
+            </div>
+            <div class="form__group">
+              <label for="year-input" class="form__label">Year</label>
+              <input
+                type="number"
+                id="year-input"
+                class="form__input"
+                placeholder="e.g. 2023"
+                min="1000"
+                max="2100"
+              />
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label for="status-input" class="form__label">Status</label>
+            <select id="status-input" class="form__input form__select">
+              <option value="">Select status</option>
+              <option value="Unread">⬜ Unread</option>
+              <option value="Reading">📖 Reading</option>
+              <option value="Read">✅ Read</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn--primary">+ Add Book</button>
+        </form>
+        <p id="error-msg" class="form__error hidden"></p>
+      </section>
+
+      <!-- ── FILTERS + SEARCH ── -->
+      <section class="filter-section">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="search-input"
+            class="search-input"
+            placeholder="Search by title or author..."
+          />
+        </div>
+
+        <div class="filter-group">
+          <p class="filter-group__label">Genre</p>
+          <div class="filter-tabs" id="genre-tabs">
+            <button class="filter-tab active" data-genre="All">All</button>
+            <button class="filter-tab" data-genre="Fiction">📖 Fiction</button>
+            <button class="filter-tab" data-genre="Non-Fiction">
+              📰 Non-Fiction
+            </button>
+            <button class="filter-tab" data-genre="Self Help">
+              🧠 Self Help
+            </button>
+            <button class="filter-tab" data-genre="Technology">
+              💻 Technology
+            </button>
+            <button class="filter-tab" data-genre="Science">🔬 Science</button>
+            <button class="filter-tab" data-genre="History">🏛️ History</button>
+            <button class="filter-tab" data-genre="Biography">
+              👤 Biography
+            </button>
+            <button class="filter-tab" data-genre="Philosophy">
+              💭 Philosophy
+            </button>
+            <button class="filter-tab" data-genre="Other">📦 Other</button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <p class="filter-group__label">Status</p>
+          <div class="filter-tabs" id="status-tabs">
+            <button class="filter-tab active" data-status="All">All</button>
+            <button class="filter-tab" data-status="Unread">⬜ Unread</button>
+            <button class="filter-tab" data-status="Reading">📖 Reading</button>
+            <button class="filter-tab" data-status="Read">✅ Read</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── BOOKS LIST ── -->
+      <section class="books-section">
+        <div class="books-section__header">
+          <h2 class="books-section__title">Books</h2>
+          <span id="book-count" class="books-section__count">0 books</span>
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div id="empty-state" class="empty-state">
+          <p class="empty-state__icon">📭</p>
+          <p class="empty-state__text">No books yet</p>
+          <p class="empty-state__sub">Add your first book above</p>
+        </div>
+
+        <!-- BOOKS RENDER HERE -->
+        <div id="books-container" class="books-container"></div>
+      </section>
+    </main>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast hidden">
+      <span id="toast-msg"></span>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
