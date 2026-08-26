@@ -1,11 +1,11 @@
 // FORM
-let form = document.getElementById("book-form")       // form
-let titleInput = document.getElementById("title-input")     // title
-let authorInput = document.getElementById("author-input")    // author
-let genreInput = document.getElementById("genre-input")     // genre dropdown
-let yearInput = document.getElementById("year-input")      // year
-let statusInput = document.getElementById("status-input")    // status dropdown
-let errMsg = document.getElementById("error-msg")       // error text
+const form = document.getElementById("book-form")       // form
+const titleInput = document.getElementById("title-input")     // title
+const authorInput = document.getElementById("author-input")    // author
+const genreInput = document.getElementById("genre-input")     // genre dropdown
+const yearInput = document.getElementById("year-input")      // year
+const statusInput = document.getElementById("status-input")    // status dropdown
+const errMsg = document.getElementById("error-msg")       // error text
 
 // STATS
 let statTotal = document.getElementById("stat-total")      // total books
@@ -183,10 +183,11 @@ function loadFromStorage() {
       state.books.push(book)
     })
     updateStats()
+    errMsg.textContent = ""
   }
 
   catch (err) {
-    console.log(err.message)
+    errMsg.textContent = err.message;
   }
 }
 
@@ -263,12 +264,48 @@ function renderBooks(books) {
     </button>
     </div>
     
+    
     `;
+
     bookContainer.appendChild(card)
   })
 }
 
+// * to delete the book 
 
+bookContainer.addEventListener("click", (e) => {
+  if (!e.target.classList.contains("delete-btn")) {
+    return;
+  }
+  const clickedBtn = e.target.dataset.id;
+  state.books = state.books.filter(curBook => curBook.id !== clickedBtn);
+  saveToStorage()
+  const filteredBooks = getFilteredBooks(state.books);
+  renderBooks(filteredBooks)
+  updateStats()
+})
+
+// * to edit the book
+
+bookContainer.addEventListener("click", (e) => {
+  if (!e.target.classList.contains("edit-btn")) return;
+
+  const clickedBook = e.target.dataset.id;
+  const book = state.books.find(curBook => curBook.id === clickedBook)
+  handleEdit(book)
+})
+
+// * handle edit
+
+function handleEdit(book) {
+  titleInput.value = book.title;
+  authorInput.value = book.author;
+  genreInput.value = book.genre;
+  yearInput.value = book.year;
+  statusInput.value = book.status;
+
+  document.querySelector(".btn").textContent = "Update Book"
+}
 
 // * function updateStats
 
@@ -301,36 +338,55 @@ function updateStats() {
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  let titleInputValue = titleInput.value;
-  if (!titleInputValue) {
-    throw new ValidationError("title cannot be empty!", "title")
-  }
-  let authorInputValue = authorInput.value;
-  if (!authorInputValue) {
-    throw new ValidationError("author can't be empty!", "author")
-  }
-  let genreInputValue = genreInput.value;
-  if (!genreInputValue) {
-    throw new ValidationError("genre can't be empty!", "genre")
-  }
-  let yearInputValue = yearInput.value
-  if (!yearInputValue) {
-    throw new ValidationError("year can't be empty!", "year")
-  }
-  let statusInputValue = statusInput.value;
-  if (!statusInputValue) {
-    throw new ValidationError("status can't be empty!", "status")
+  try {
+
+    let titleInputValue = titleInput.value;
+    if (!titleInputValue.trim()) {
+      throw new ValidationError("title cannot be empty!", "title")
+    }
+    // * logic for duplicate error
+    state.books.forEach((curElem) => {
+      if (titleInputValue.toLowerCase().trim() === curElem.title.toLowerCase().trim()) {
+        throw new DuplicateBookError(titleInputValue)
+      }
+    })
+    let authorInputValue = authorInput.value;
+    if (!authorInputValue.trim()) {
+      throw new ValidationError("author can't be empty!", "author")
+    }
+    let genreInputValue = genreInput.value;
+    if (!genreInputValue) {
+      throw new ValidationError("genre can't be empty!", "genre")
+    }
+    let yearInputValue = yearInput.value
+    if (!yearInputValue) {
+      throw new ValidationError("year can't be empty!", "year")
+    }
+    let statusInputValue = statusInput.value;
+    if (!statusInputValue) {
+      throw new ValidationError("status can't be empty!", "status")
+    }
+
+
+
+    const newBook = new Book(titleInputValue, authorInputValue, genreInputValue, yearInputValue, statusInputValue)
+    state.books.push(newBook)
+    saveToStorage()
+    updateStats()
+    renderBooks(state.books)
+    errMsg.textContent = ""
+    form.reset()
+  } catch (err) {
+    errMsg.textContent = err.message;
   }
 
-  const newBook = new Book(titleInputValue, authorInputValue, genreInputValue, yearInputValue, statusInputValue)
-  state.books.push(newBook)
-  saveToStorage()
-  updateStats()
-  renderBooks(state.books)
-  form.reset()
 })
 
+// * toast message
 
+function toastMsg(msg) {
+
+}
 
 // * application initial state
 
