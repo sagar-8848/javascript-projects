@@ -27,6 +27,10 @@ document.getElementById("status-tabs")     // status filter tabs
 document.getElementById("toast")           // toast wrapper
 document.getElementById("toast-msg")       // toast text
 
+// add or edit btn
+
+const addOreditBtn = document.querySelector(".btn")
+const cancelBtn = document.querySelector(".cancel-btn")
 
 
 
@@ -130,7 +134,8 @@ const state = {
     genre: "All",
     status: "All",
     search: ""
-  }
+  },
+  editingBookId: null,
 }
 
 
@@ -304,7 +309,10 @@ function handleEdit(book) {
   yearInput.value = book.year;
   statusInput.value = book.status;
 
-  document.querySelector(".btn").textContent = "Update Book"
+  state.editingBookId = book.id;
+  addOreditBtn.textContent = "Update Book"
+  cancelBtn.classList.remove("hidden")
+
 }
 
 // * function updateStats
@@ -370,19 +378,60 @@ form.addEventListener("submit", (e) => {
 
 
     const newBook = new Book(titleInputValue, authorInputValue, genreInputValue, yearInputValue, statusInputValue)
-    state.books.push(newBook)
+    if (state.editingBookId === null) {
+      state.books.push(newBook)
+
+    }
+    else {
+
+      const editedBook = state.books.find(curBook => curBook.id === state.editingBookId);
+
+      editedBook.title = titleInput.value;
+      editedBook.author = authorInput.value;
+      editedBook.genre = genreInput.value;
+      editedBook.year = yearInput.value;
+      editedBook.status = statusInput.value;
+    }
     saveToStorage()
     updateStats()
     renderBooks(state.books)
     errMsg.textContent = ""
     form.reset()
+    handleEditSuccessOrCancel()
   } catch (err) {
     errMsg.textContent = err.message;
   }
 
 })
 
+// * handle cancel btn
+
+cancelBtn.addEventListener("click", handleEditSuccessOrCancel)
+
+// * making reusable component for the edit success or edit cancel
+
+function handleEditSuccessOrCancel() {
+  state.editingBookId = null;
+  addOreditBtn.textContent = "Add Book"
+  cancelBtn.classList.add("hidden");
+  form.reset()
+}
+
+// * setting up for filter tabs
+
+function setupFilterTabs() {
+  const filterTabs = document.querySelector(".filter-tabs");
+  filterTabs.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("filter-tab")) return;
+    console.log(e.target.dataset.genre)
+  })
+}
+
+
+
+
 // * toast message
+
 
 function toastMsg(msg) {
 
