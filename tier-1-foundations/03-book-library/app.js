@@ -24,8 +24,8 @@ document.getElementById("genre-tabs")      // genre filter tabs
 document.getElementById("status-tabs")     // status filter tabs
 
 // TOAST
-document.getElementById("toast")           // toast wrapper
-document.getElementById("toast-msg")       // toast text
+const toastContainer = document.getElementById("toast")           // toast wrapper
+const toastMsg = document.getElementById("toast-msg")       // toast text
 
 // add or edit btn
 
@@ -288,6 +288,7 @@ bookContainer.addEventListener("click", (e) => {
   const filteredBooks = getFilteredBooks(state.books);
   renderBooks(filteredBooks)
   updateStats()
+
 })
 
 // * to edit the book
@@ -420,22 +421,40 @@ function handleEditSuccessOrCancel() {
 // * setting up for filter tabs
 
 function setupFilterTabs() {
-  const filterTabs = document.querySelector(".filter-tabs");
-  filterTabs.addEventListener("click", (e) => {
+  const fitlerSection = document.querySelector(".filter-section");
+  fitlerSection.addEventListener("click", (e) => {
     if (!e.target.classList.contains("filter-tab")) return;
-    console.log(e.target.dataset.genre)
+    const keyArr = Object.keys(e.target.dataset);
+    const key = keyArr[0]
+    const value = e.target.dataset[key]
+
+
+    const parentOne = e.target.closest(".filter-tabs");
+    const activeOne = parentOne.querySelector(".filter-tab.active")
+    activeOne.classList.remove("active")
+    e.target.classList.add("active")
+
+
+    state.filters[key] = value;
+    const filteredOne = getFilteredBooks(state.books);
+    renderBooks(filteredOne)
   })
 }
 
+setupFilterTabs();
 
 
 
 // * toast message
 
 
-function toastMsg(msg) {
-
+function showToast(msg, type = "success") {
+    toastMsg.textContent = msg;
+  setTimeout(() => {
+    // now hide the toast 
+  }, 2000)
 }
+
 
 // * application initial state
 
