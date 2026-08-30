@@ -31,7 +31,7 @@ Bonus   — Solidify        → lock in every concept
 |---|---------|--------------|------|--------|
 | 01 | [DevLinks](./tier-1-foundations/01-devlinks/) | DOM mastery | [Demo](https://sagar-8848.github.io/javascript-projects/tier-1-foundations/01-devlinks/index.html) | ✅ |
 | 02 | [ExpenseIQ](./tier-1-foundations/02-expenseiq/) | Code organization | [Demo](https://sagar-8848.github.io/javascript-projects/tier-1-foundations/02-expenseiq/index.html) | ✅ |
-| 03 | [Book Library](./tier-1-foundations/03-book-library) | OOP | [Demo](#) | ⬜ |
+| 03 | [Book Library](./tier-1-foundations/03-book-library) | OOP | [Demo](https://sagar-8848.github.io/javascript-projects/tier-1-foundations/03-book-library/index.html) | ✅ |
 | 04 | [Shopping Cart](./tier-1-foundations/04-shopping-cart) | State management | [Demo](#) | ⬜ |
 
 ### Tier 2 — Async & APIs
@@ -135,8 +135,8 @@ perf:     performance
 
 ## 📈 Progress
 \`\`\`
-Projects completed: 0/19
-Current project:    01 — DevLinks
+Projects completed: 3/19
+Current project:    04 — Shopping-Cart
 Next milestone:     Tier 1 complete (4 projects)
 \`\`\`
 
