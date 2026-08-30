@@ -1,3 +1,7 @@
+// ====================
+// * DOM REFERENCES
+// ====================
+
 // FORM
 const form = document.getElementById("book-form");
 const titleInput = document.getElementById("title-input");
@@ -13,7 +17,7 @@ const statRead = document.getElementById("stat-read");
 const statReading = document.getElementById("stat-reading");
 const statUnread = document.getElementById("stat-unread");
 
-// LIST
+// BOOK LIST
 const bookContainer = document.getElementById("books-container");
 const emptyState = document.getElementById("empty-state");
 const bookCount = document.getElementById("book-count");
@@ -25,9 +29,34 @@ const searchFilter = document.getElementById("search-input");
 const toastContainer = document.getElementById("toast");
 const toastMsg = document.getElementById("toast-msg");
 
-// ADD / EDIT
+// FORM BUTTONS
 const addOrEditBtn = document.querySelector(".btn");
 const cancelBtn = document.querySelector(".cancel-btn");
+
+
+// ====================
+// * CONSTANTS
+// ====================
+
+const STORAGE_KEY = "all-books-data";
+
+const categoryIcons = {
+  Fiction: "📖",
+  "Non-Fiction": "📰",
+  "Self Help": "🧠",
+  Technology: "💻",
+  Science: "🔬",
+  History: "🏛️",
+  Biography: "👤",
+  Philosophy: "💭",
+  Other: "📦",
+};
+
+const currentStatus = {
+  Read: "status--read",
+  Reading: "status--reading",
+  Unread: "status--unread",
+};
 
 
 // ====================
@@ -54,8 +83,9 @@ function debounce(callback, delay) {
 class ValidationError extends Error {
   constructor(message, field) {
     super(message);
+
+    this.name = "ValidationError";
     this.field = field;
-    this.name = "Validation Error";
     this.statusCode = 400;
   }
 }
@@ -63,38 +93,11 @@ class ValidationError extends Error {
 class DuplicateBookError extends Error {
   constructor(title) {
     super(`Book already exists: ${title}`);
-    this.name = "Duplicate Book Error";
+
+    this.name = "DuplicateBookError";
     this.statusCode = 409;
   }
 }
-
-
-// ====================
-// * CATEGORY ICONS
-// ====================
-
-const categoryIcons = {
-  Fiction: "📖",
-  "Non-Fiction": "📰",
-  "Self Help": "🧠",
-  Technology: "💻",
-  Science: "🔬",
-  History: "🏛️",
-  Biography: "👤",
-  Philosophy: "💭",
-  Other: "📦",
-};
-
-
-// ====================
-// * STATUS CLASSES
-// ====================
-
-const currentStatus = {
-  Read: "status--read",
-  Reading: "status--reading",
-  Unread: "status--unread",
-};
 
 
 // ====================
@@ -104,6 +107,7 @@ const currentStatus = {
 class Book {
   constructor(title, author, genre, year, status) {
     this.id = Date.now().toString();
+
     this.title = title;
     this.author = author;
     this.genre = genre;
@@ -126,7 +130,7 @@ class Book {
 
 
 // ====================
-// * STATE
+// * APPLICATION STATE
 // ====================
 
 const state = {
@@ -143,29 +147,32 @@ const state = {
 
 
 // ====================
-// * BOOK SUBCLASSES
+// * ERROR UI
 // ====================
 
-class FictionBook extends Book {
-  constructor(title, author, year, status) {
-    super(title, author, "Fiction", year, status);
-    this.hasSeries = false;
-  }
-
-  getGenreIcon() {
-    return "📖";
-  }
+function showError(message) {
+  errMsg.textContent = message;
+  errMsg.classList.remove("hidden");
 }
 
-class NonFiction extends Book {
-  constructor(title, author, year, status) {
-    super(title, author, "Non-Fiction", year, status);
-    this.hasSeries = false;
-  }
+function clearError() {
+  errMsg.textContent = "";
+  errMsg.classList.add("hidden");
+}
 
-  getGenreIcon() {
-    return "📰";
-  }
+
+// ====================
+// * FORM MODE
+// ====================
+
+function resetFormMode() {
+  state.editingBookId = null;
+
+  addOrEditBtn.textContent = "Add Book";
+
+  cancelBtn.classList.add("hidden");
+
+  form.reset();
 }
 
 
@@ -173,42 +180,40 @@ class NonFiction extends Book {
 // * LOCAL STORAGE
 // ====================
 
-const STORAGE_KEY = "all-books-data";
-
 function saveToStorage() {
-  const stringifiedBooksArr = JSON.stringify(state.books);
+  const stringifiedBooks = JSON.stringify(state.books);
 
-  localStorage.setItem(STORAGE_KEY, stringifiedBooksArr);
+  localStorage.setItem(STORAGE_KEY, stringifiedBooks);
 }
 
 
 function loadFromStorage() {
-  const stringifiedBooksArr = localStorage.getItem(STORAGE_KEY);
+  const storedBooks = localStorage.getItem(STORAGE_KEY);
 
-  if (!stringifiedBooksArr) return;
+  if (!storedBooks) {
+    return;
+  }
 
   try {
-    const originalBooksArr = JSON.parse(stringifiedBooksArr);
+    const parsedBooks = JSON.parse(storedBooks);
 
-    originalBooksArr.forEach((plainObject) => {
+    state.books = parsedBooks.map((plainBook) => {
       const book = new Book(
-        plainObject.title,
-        plainObject.author,
-        plainObject.genre,
-        plainObject.year,
-        plainObject.status
+        plainBook.title,
+        plainBook.author,
+        plainBook.genre,
+        plainBook.year,
+        plainBook.status
       );
 
-      book.id = plainObject.id;
+      book.id = plainBook.id;
 
-      state.books.push(book);
+      return book;
     });
 
-    updateStats();
-    errMsg.textContent = "";
   } catch (err) {
-    errMsg.textContent = err.message;
-    errMsg.classList.remove("hidden");
+    showError("Could not load saved books.");
+    console.error(err);
   }
 }
 
@@ -218,44 +223,31 @@ function loadFromStorage() {
 // ====================
 
 function getFilteredBooks(allBooks) {
-  return allBooks.filter((curBook) => {
+  const searchQuery = state.filters.search
+    .toLowerCase()
+    .trim();
+
+  return allBooks.filter((book) => {
+    const matchesGenre =
+      state.filters.genre === "All" ||
+      book.genre === state.filters.genre;
+
+    const matchesStatus =
+      state.filters.status === "All" ||
+      book.status === state.filters.status;
+
+    const matchesSearch =
+      searchQuery === "" ||
+      book.title.toLowerCase().includes(searchQuery) ||
+      book.author.toLowerCase().includes(searchQuery);
+
     return (
-      (state.filters.genre === "All" ||
-        curBook.genre === state.filters.genre) &&
-
-      (state.filters.status === "All" ||
-        curBook.status === state.filters.status) &&
-
-      (
-        state.filters.search === "" ||
-        curBook.title
-          .toLowerCase()
-          .trim()
-          .includes(state.filters.search.toLowerCase().trim()) ||
-
-        curBook.author
-          .toLowerCase()
-          .trim()
-          .includes(state.filters.search.toLowerCase().trim())
-      )
+      matchesGenre &&
+      matchesStatus &&
+      matchesSearch
     );
   });
 }
-
-
-// ====================
-// * SEARCH
-// ====================
-
-searchFilter.addEventListener("input", () => {
-  const searchedQuery = searchFilter.value;
-
-  state.filters.search = searchedQuery;
-
-  const filteredBooks = getFilteredBooks(state.books);
-
-  renderBooks(filteredBooks);
-});
 
 
 // ====================
@@ -265,8 +257,8 @@ searchFilter.addEventListener("input", () => {
 function renderBooks(books) {
   bookContainer.innerHTML = "";
 
-  bookCount.textContent = `${books.length} ${books.length === 1 ? "book" : "books"
-    }`;
+  bookCount.textContent =
+    `${books.length} ${books.length === 1 ? "book" : "books"}`;
 
   if (books.length === 0) {
     emptyState.hidden = false;
@@ -275,7 +267,7 @@ function renderBooks(books) {
 
   emptyState.hidden = true;
 
-  books.forEach((curBook) => {
+  books.forEach((book) => {
     const card = document.createElement("div");
 
     card.classList.add("book-card");
@@ -284,40 +276,46 @@ function renderBooks(books) {
       <div class="book-card__header">
 
         <span class="book-card__icon">
-          ${curBook.getGenreIcon()}
+          ${book.getGenreIcon()}
         </span>
 
-        <span class="book-card__status ${curBook.getStatusClass()}">
-          ${curBook.status}
+        <span class="book-card__status ${book.getStatusClass()}">
+          ${book.status}
         </span>
 
       </div>
 
       <div class="book-card__info">
         <h3 class="book-card__title">
-          ${curBook.title}
+          ${book.title}
         </h3>
       </div>
 
       <p class="book-card__author">
-        ${curBook.author}
+        ${book.author}
       </p>
 
       <p class="book-card__genre">
-        ${curBook.genre}
+        ${book.genre}
       </p>
 
       <p class="book-card__year">
-        ${curBook.getFormattedYear()}
+        ${book.getFormattedYear()}
       </p>
 
       <div class="book-card__actions">
 
-        <button class="edit-btn" data-id="${curBook.id}">
+        <button
+          class="edit-btn"
+          data-id="${book.id}"
+        >
           Edit
         </button>
 
-        <button class="delete-btn" data-id="${curBook.id}">
+        <button
+          class="delete-btn"
+          data-id="${book.id}"
+        >
           Delete
         </button>
 
@@ -330,33 +328,242 @@ function renderBooks(books) {
 
 
 // ====================
-// * DELETE BOOK
+// * UPDATE STATS
 // ====================
 
-bookContainer.addEventListener("click", (e) => {
-  if (!e.target.classList.contains("delete-btn")) {
-    return;
-  }
+function updateStats() {
+  const readCount = state.books.filter(
+    (book) => book.status === "Read"
+  ).length;
 
-  const bookId = e.target.dataset.id;
+  const readingCount = state.books.filter(
+    (book) => book.status === "Reading"
+  ).length;
 
-  if (!confirm("Are you sure you want to delete this book?")) {
-    return;
-  }
+  const unreadCount = state.books.filter(
+    (book) => book.status === "Unread"
+  ).length;
 
-  state.books = state.books.filter(
-    (curBook) => curBook.id !== bookId
-  );
+  statTotal.textContent = state.books.length;
+  statRead.textContent = readCount;
+  statReading.textContent = readingCount;
+  statUnread.textContent = unreadCount;
+}
 
-  saveToStorage();
 
-  const filteredBooks = getFilteredBooks(state.books);
+// ====================
+// * REFRESH UI
+// ====================
 
-  renderBooks(filteredBooks);
-
+function refreshUI() {
   updateStats();
 
-  showToast("Book Deleted!", "error");
+  const filteredBooks =
+    getFilteredBooks(state.books);
+
+  renderBooks(filteredBooks);
+}
+
+
+// ====================
+// * TOAST
+// ====================
+
+let toastTimer;
+
+function showToast(message, type = "success") {
+  toastContainer.classList.remove("hidden");
+
+  toastContainer.classList.remove(
+    "success",
+    "error"
+  );
+
+  toastContainer.classList.add(type);
+
+  toastMsg.textContent = message;
+
+  clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(() => {
+    toastContainer.classList.add("hidden");
+  }, 2000);
+}
+
+
+// ====================
+// * ADD BOOK
+// ====================
+
+function addBook() {
+  const title = titleInput.value.trim();
+  const author = authorInput.value.trim();
+  const genre = genreInput.value;
+  const year = yearInput.value;
+  const status = statusInput.value;
+
+  if (!title) {
+    throw new ValidationError(
+      "Title cannot be empty!",
+      "title"
+    );
+  }
+
+  if (!author) {
+    throw new ValidationError(
+      "Author can't be empty!",
+      "author"
+    );
+  }
+
+  if (!genre) {
+    throw new ValidationError(
+      "Genre can't be empty!",
+      "genre"
+    );
+  }
+
+  if (!year) {
+    throw new ValidationError(
+      "Year can't be empty!",
+      "year"
+    );
+  }
+
+  if (!status) {
+    throw new ValidationError(
+      "Status can't be empty!",
+      "status"
+    );
+  }
+
+  const duplicateBook = state.books.find(
+    (book) =>
+      book.title.toLowerCase().trim() ===
+      title.toLowerCase().trim()
+  );
+
+  if (duplicateBook) {
+    throw new DuplicateBookError(title);
+  }
+
+  const newBook = new Book(
+    title,
+    author,
+    genre,
+    year,
+    status
+  );
+
+  state.books.push(newBook);
+
+  showToast("Book Added!", "success");
+}
+
+
+// ====================
+// * UPDATE BOOK
+// ====================
+
+function updateBook() {
+  const title = titleInput.value.trim();
+  const author = authorInput.value.trim();
+  const genre = genreInput.value;
+  const year = yearInput.value;
+  const status = statusInput.value;
+
+  if (!title) {
+    throw new ValidationError(
+      "Title cannot be empty!",
+      "title"
+    );
+  }
+
+  if (!author) {
+    throw new ValidationError(
+      "Author can't be empty!",
+      "author"
+    );
+  }
+
+  if (!genre) {
+    throw new ValidationError(
+      "Genre can't be empty!",
+      "genre"
+    );
+  }
+
+  if (!year) {
+    throw new ValidationError(
+      "Year can't be empty!",
+      "year"
+    );
+  }
+
+  if (!status) {
+    throw new ValidationError(
+      "Status can't be empty!",
+      "status"
+    );
+  }
+
+  const editedBook = state.books.find(
+    (book) =>
+      book.id === state.editingBookId
+  );
+
+  if (!editedBook) {
+    throw new Error("Book not found.");
+  }
+
+  const duplicateBook = state.books.find(
+    (book) =>
+      book.id !== editedBook.id &&
+      book.title.toLowerCase().trim() ===
+      title.toLowerCase().trim()
+  );
+
+  if (duplicateBook) {
+    throw new DuplicateBookError(title);
+  }
+
+  editedBook.title = title;
+  editedBook.author = author;
+  editedBook.genre = genre;
+  editedBook.year = year;
+  editedBook.status = status;
+
+  showToast("Book Updated!", "success");
+}
+
+
+// ====================
+// * FORM SUBMIT
+// ====================
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  try {
+    if (state.editingBookId === null) {
+      addBook();
+    } else {
+      updateBook();
+    }
+
+    saveToStorage();
+
+    refreshUI();
+
+    clearError();
+
+    resetFormMode();
+
+  } catch (err) {
+    showError(err.message);
+
+    console.error(err);
+  }
 });
 
 
@@ -372,8 +579,12 @@ bookContainer.addEventListener("click", (e) => {
   const bookId = e.target.dataset.id;
 
   const book = state.books.find(
-    (curBook) => curBook.id === bookId
+    (book) => book.id === bookId
   );
+
+  if (!book) {
+    return;
+  }
 
   handleEdit(book);
 });
@@ -391,170 +602,65 @@ function handleEdit(book) {
   addOrEditBtn.textContent = "Update Book";
 
   cancelBtn.classList.remove("hidden");
+
+  clearError();
 }
 
 
 // ====================
-// * UPDATE STATS
+// * DELETE BOOK
 // ====================
 
-function updateStats() {
-  const readBooks = state.books.filter(
-    (curBook) => curBook.status === "Read"
+bookContainer.addEventListener("click", (e) => {
+  if (!e.target.classList.contains("delete-btn")) {
+    return;
+  }
+
+  const bookId = e.target.dataset.id;
+
+  const book = state.books.find(
+    (book) => book.id === bookId
   );
 
-  const readingBooks = state.books.filter(
-    (curBook) => curBook.status === "Reading"
+  if (!book) {
+    return;
+  }
+
+  const confirmed = confirm(
+    `Are you sure you want to delete "${book.title}"?`
   );
 
-  const unreadBooks = state.books.filter(
-    (curBook) => curBook.status === "Unread"
+  if (!confirmed) {
+    return;
+  }
+
+  state.books = state.books.filter(
+    (book) => book.id !== bookId
   );
 
-  statTotal.textContent = state.books.length;
-  statRead.textContent = readBooks.length;
-  statReading.textContent = readingBooks.length;
-  statUnread.textContent = unreadBooks.length;
-}
+  saveToStorage();
 
+  refreshUI();
 
-// ====================
-// * ADD / UPDATE BOOK
-// ====================
+  showToast("Book Deleted!", "error");
 
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  try {
-    const titleInputValue = titleInput.value;
-    const authorInputValue = authorInput.value;
-    const genreInputValue = genreInput.value;
-    const yearInputValue = yearInput.value;
-    const statusInputValue = statusInput.value;
-
-    // Validation
-    if (!titleInputValue.trim()) {
-      throw new ValidationError(
-        "Title cannot be empty!",
-        "title"
-      );
-    }
-
-    // Duplicate check
-    state.books.forEach((curBook) => {
-      if (state.editingBookId === curBook.id) {
-        return;
-      }
-
-      if (
-        titleInputValue.toLowerCase().trim() ===
-        curBook.title.toLowerCase().trim()
-      ) {
-        throw new DuplicateBookError(titleInputValue);
-      }
-    });
-
-    if (!authorInputValue.trim()) {
-      throw new ValidationError(
-        "Author can't be empty!",
-        "author"
-      );
-    }
-
-    if (!genreInputValue) {
-      throw new ValidationError(
-        "Genre can't be empty!",
-        "genre"
-      );
-    }
-
-    if (!yearInputValue) {
-      throw new ValidationError(
-        "Year can't be empty!",
-        "year"
-      );
-    }
-
-    if (!statusInputValue) {
-      throw new ValidationError(
-        "Status can't be empty!",
-        "status"
-      );
-    }
-
-
-    // ADD
-    if (state.editingBookId === null) {
-      const newBook = new Book(
-        titleInputValue,
-        authorInputValue,
-        genreInputValue,
-        yearInputValue,
-        statusInputValue
-      );
-
-      state.books.push(newBook);
-
-      showToast("Book Added!", "success");
-    }
-
-
-    // UPDATE
-    else {
-      const editedBook = state.books.find(
-        (curBook) =>
-          curBook.id === state.editingBookId
-      );
-
-      editedBook.title = titleInputValue;
-      editedBook.author = authorInputValue;
-      editedBook.genre = genreInputValue;
-      editedBook.year = yearInputValue;
-      editedBook.status = statusInputValue;
-
-      showToast("Book Updated!", "success");
-    }
-
-
-    saveToStorage();
-
-    updateStats();
-
-    renderBooks(state.books);
-
-    errMsg.textContent = "";
-
-    form.reset();
-
+  if (state.editingBookId === bookId) {
     resetFormMode();
-
-  } catch (err) {
-    errMsg.textContent = err.message;
-    errMsg.classList.remove("hidden");
   }
 });
 
 
 // ====================
-// * RESET FORM MODE
+// * CANCEL EDIT
 // ====================
 
 cancelBtn.addEventListener("click", () => {
   resetFormMode();
 
+  clearError();
+
   showToast("Edit Cancelled!", "success");
 });
-
-
-function resetFormMode() {
-  state.editingBookId = null;
-
-  addOrEditBtn.textContent = "Add Book";
-
-  cancelBtn.classList.add("hidden");
-
-  form.reset();
-}
 
 
 // ====================
@@ -570,30 +676,27 @@ function setupFilterTabs() {
       return;
     }
 
-    const keyArr = Object.keys(e.target.dataset);
-
-    const key = keyArr[0];
+    const key = Object.keys(
+      e.target.dataset
+    )[0];
 
     const value = e.target.dataset[key];
 
-
-    const parentOne =
+    const parent =
       e.target.closest(".filter-tabs");
 
-    const activeOne =
-      parentOne.querySelector(".filter-tab.active");
+    const activeTab =
+      parent.querySelector(".filter-tab.active");
 
-    activeOne.classList.remove("active");
+    if (activeTab) {
+      activeTab.classList.remove("active");
+    }
 
     e.target.classList.add("active");
 
-
     state.filters[key] = value;
 
-    const filteredBooks =
-      getFilteredBooks(state.books);
-
-    renderBooks(filteredBooks);
+    refreshUI();
   });
 }
 
@@ -601,29 +704,19 @@ setupFilterTabs();
 
 
 // ====================
-// * TOAST
+// * SEARCH
 // ====================
 
-let toastTimer;
+const handleSearch = debounce(() => {
+  state.filters.search = searchFilter.value;
 
-function showToast(msg, type = "success") {
-  toastContainer.classList.remove("hidden");
+  refreshUI();
+}, 300);
 
-  toastContainer.classList.remove(
-    "error",
-    "success"
-  );
-
-  toastContainer.classList.add(type);
-
-  toastMsg.textContent = msg;
-
-  clearTimeout(toastTimer);
-
-  toastTimer = setTimeout(() => {
-    toastContainer.classList.add("hidden");
-  }, 2000);
-}
+searchFilter.addEventListener(
+  "input",
+  handleSearch
+);
 
 
 // ====================
@@ -633,12 +726,9 @@ function showToast(msg, type = "success") {
 function init() {
   loadFromStorage();
 
-  updateStats();
+  refreshUI();
 
-  const filteredBooks =
-    getFilteredBooks(state.books);
-
-  renderBooks(filteredBooks);
+  clearError();
 }
 
 init();
