@@ -1,60 +1,55 @@
 // FORM
-const form = document.getElementById("book-form")       // form
-const titleInput = document.getElementById("title-input")     // title
-const authorInput = document.getElementById("author-input")    // author
-const genreInput = document.getElementById("genre-input")     // genre dropdown
-const yearInput = document.getElementById("year-input")      // year
-const statusInput = document.getElementById("status-input")    // status dropdown
-const errMsg = document.getElementById("error-msg")       // error text
+const form = document.getElementById("book-form");
+const titleInput = document.getElementById("title-input");
+const authorInput = document.getElementById("author-input");
+const genreInput = document.getElementById("genre-input");
+const yearInput = document.getElementById("year-input");
+const statusInput = document.getElementById("status-input");
+const errMsg = document.getElementById("error-msg");
 
 // STATS
-let statTotal = document.getElementById("stat-total")      // total books
-let statRead = document.getElementById("stat-read")       // read count
-let statReading = document.getElementById("stat-reading")    // reading count
-let statUnread = document.getElementById("stat-unread")     // unread count
+const statTotal = document.getElementById("stat-total");
+const statRead = document.getElementById("stat-read");
+const statReading = document.getElementById("stat-reading");
+const statUnread = document.getElementById("stat-unread");
 
 // LIST
-let bookContainer = document.getElementById("books-container") // cards render here
-let emptyState = document.getElementById("empty-state")     // empty message
-let bookCount = document.getElementById("book-count")      // "12 books"
+const bookContainer = document.getElementById("books-container");
+const emptyState = document.getElementById("empty-state");
+const bookCount = document.getElementById("book-count");
 
 // FILTERS
-let searchFilter = document.getElementById("search-input")    // search box
-document.getElementById("genre-tabs")      // genre filter tabs
-document.getElementById("status-tabs")     // status filter tabs
+const searchFilter = document.getElementById("search-input");
 
 // TOAST
-const toastContainer = document.getElementById("toast")           // toast wrapper
-const toastMsg = document.getElementById("toast-msg")       // toast text
+const toastContainer = document.getElementById("toast");
+const toastMsg = document.getElementById("toast-msg");
 
-// add or edit btn
-
-const addOreditBtn = document.querySelector(".btn")
-const cancelBtn = document.querySelector(".cancel-btn")
-
+// ADD / EDIT
+const addOrEditBtn = document.querySelector(".btn");
+const cancelBtn = document.querySelector(".cancel-btn");
 
 
 // ====================
-// * debounce function 
+// * DEBOUNCE
 // ====================
 
 function debounce(callback, delay) {
   let timer;
-  return function (...args) {
-    clearTimeout(timer)
-    timer = setTimeout(() => {
-      callback(...args)
-    }, delay)
-  }
 
+  return function (...args) {
+    clearTimeout(timer);
+
+    timer = setTimeout(() => {
+      callback(...args);
+    }, delay);
+  };
 }
 
 
 // ====================
-// * Custiom Errors
+// * CUSTOM ERRORS
 // ====================
-
-// * validation error
 
 class ValidationError extends Error {
   constructor(message, field) {
@@ -65,44 +60,46 @@ class ValidationError extends Error {
   }
 }
 
-// * duplicate error
-
 class DuplicateBookError extends Error {
   constructor(title) {
-    super(`Book already Exists ${title}`);
+    super(`Book already exists: ${title}`);
     this.name = "Duplicate Book Error";
     this.statusCode = 409;
   }
 }
 
-// Category Icons
+
+// ====================
+// * CATEGORY ICONS
+// ====================
 
 const categoryIcons = {
-
-  "Fiction": "📖",
+  Fiction: "📖",
   "Non-Fiction": "📰",
   "Self Help": "🧠",
-  "Technology": "💻",
-  "Science": "🔬",
-  "History": "🏛️",
-  "Biography": "👤",
-  "Philosophy": "💭",
-  "Other": "📦",
+  Technology: "💻",
+  Science: "🔬",
+  History: "🏛️",
+  Biography: "👤",
+  Philosophy: "💭",
+  Other: "📦",
 };
 
 
-// status 
+// ====================
+// * STATUS CLASSES
+// ====================
 
 const currentStatus = {
   Read: "status--read",
   Reading: "status--reading",
-  Unread: "status--unread"
-}
+  Unread: "status--unread",
+};
+
 
 // ====================
-// * Book Class
+// * BOOK CLASS
 // ====================
-
 
 class Book {
   constructor(title, author, genre, year, status) {
@@ -111,34 +108,43 @@ class Book {
     this.author = author;
     this.genre = genre;
     this.year = year;
-    this.status = status
+    this.status = status;
   }
 
-  // ? to get the icon 
   getGenreIcon() {
-    return categoryIcons[this.genre] ?? "📦"
+    return categoryIcons[this.genre] ?? "📦";
   }
 
   getStatusClass() {
-    return currentStatus[this.status] ?? "status--unread"
+    return currentStatus[this.status] ?? "status--unread";
   }
 
   getFormattedYear() {
-    return this.year ? String(this.year) : "Unknown"
+    return this.year ? String(this.year) : "Unknown";
   }
 }
 
+
+// ====================
+// * STATE
+// ====================
+
 const state = {
   books: [],
+
   filters: {
     genre: "All",
     status: "All",
-    search: ""
+    search: "",
   },
+
   editingBookId: null,
-}
+};
 
 
+// ====================
+// * BOOK SUBCLASSES
+// ====================
 
 class FictionBook extends Book {
   constructor(title, author, year, status) {
@@ -160,68 +166,107 @@ class NonFiction extends Book {
   getGenreIcon() {
     return "📰";
   }
-
 }
 
 
 // ====================
-// * Save to Local Storage
+// * LOCAL STORAGE
 // ====================
-const STORAGE_KEY = "all-books-data";  // 
+
+const STORAGE_KEY = "all-books-data";
 
 function saveToStorage() {
-  const stringifedBooksArr = JSON.stringify(state.books)
-  localStorage.setItem(STORAGE_KEY, stringifedBooksArr)
+  const stringifiedBooksArr = JSON.stringify(state.books);
+
+  localStorage.setItem(STORAGE_KEY, stringifiedBooksArr);
 }
 
 
 function loadFromStorage() {
-  const stringifedBooksArr = localStorage.getItem(STORAGE_KEY)
-  if (!stringifedBooksArr) return;
-  try {
-    const orgBooksArr = JSON.parse(stringifedBooksArr);
-    orgBooksArr.forEach((plainObject) => {
-      const book = new Book(
-        plainObject.title, plainObject.author, plainObject.genre, plainObject.year, plainObject.status,
-      )
-      book.id = plainObject.id;
-      state.books.push(book)
-    })
-    updateStats()
-    errMsg.textContent = ""
-  }
+  const stringifiedBooksArr = localStorage.getItem(STORAGE_KEY);
 
-  catch (err) {
+  if (!stringifiedBooksArr) return;
+
+  try {
+    const originalBooksArr = JSON.parse(stringifiedBooksArr);
+
+    originalBooksArr.forEach((plainObject) => {
+      const book = new Book(
+        plainObject.title,
+        plainObject.author,
+        plainObject.genre,
+        plainObject.year,
+        plainObject.status
+      );
+
+      book.id = plainObject.id;
+
+      state.books.push(book);
+    });
+
+    updateStats();
+    errMsg.textContent = "";
+  } catch (err) {
     errMsg.textContent = err.message;
+    errMsg.classList.remove("hidden");
   }
 }
 
+
+// ====================
+// * FILTERING
+// ====================
 
 function getFilteredBooks(allBooks) {
-  const filtered = allBooks.filter((curBook) => {
-    return (state.filters.genre === "All" || curBook.genre === state.filters.genre)
-      &&
-      (state.filters.status === "All" || curBook.status === state.filters.status)
-      &&
-      // let userQuery = searchFilter.value
-      (state.filters.search === "" || curBook.title.toLowerCase().trim().includes(state.filters.search.toLowerCase().trim()) || curBook.author.toLowerCase().trim().includes(state.filters.search.toLowerCase().trim()))
-  })
-  return filtered;
+  return allBooks.filter((curBook) => {
+    return (
+      (state.filters.genre === "All" ||
+        curBook.genre === state.filters.genre) &&
+
+      (state.filters.status === "All" ||
+        curBook.status === state.filters.status) &&
+
+      (
+        state.filters.search === "" ||
+        curBook.title
+          .toLowerCase()
+          .trim()
+          .includes(state.filters.search.toLowerCase().trim()) ||
+
+        curBook.author
+          .toLowerCase()
+          .trim()
+          .includes(state.filters.search.toLowerCase().trim())
+      )
+    );
+  });
 }
 
 
+// ====================
+// * SEARCH
+// ====================
 
 searchFilter.addEventListener("input", () => {
-  let searchedQuery = searchFilter.value;
+  const searchedQuery = searchFilter.value;
 
   state.filters.search = searchedQuery;
+
   const filteredBooks = getFilteredBooks(state.books);
-  renderBooks(filteredBooks)
-})
+
+  renderBooks(filteredBooks);
+});
+
+
+// ====================
+// * RENDER BOOKS
+// ====================
 
 function renderBooks(books) {
   bookContainer.innerHTML = "";
-  bookCount.textContent = `${books.length} ${books.length === 1 ? "book" : "books"}`;
+
+  bookCount.textContent = `${books.length} ${books.length === 1 ? "book" : "books"
+    }`;
 
   if (books.length === 0) {
     emptyState.hidden = false;
@@ -229,79 +274,110 @@ function renderBooks(books) {
   }
 
   emptyState.hidden = true;
+
   books.forEach((curBook) => {
     const card = document.createElement("div");
-    card.classList.add("book-card")
+
+    card.classList.add("book-card");
 
     card.innerHTML = `
-    <div class = "book-card__header">
-    <span class="book-card__icon">
-    ${curBook.getGenreIcon()}
-    </span >
-    <span class="book-card__status ${curBook.getStatusClass()}">${curBook.status}</span>
-    </div>
-    
-    <div class="book-card__info">
-    <h3 class="book-card__title">
-    ${curBook.title}
-    </h3>
-    </div>
-    
-    <p class="book-card__author">
-    ${curBook.author}
-    </p>
-    
-    <p class="book-card__genre">
-    ${curBook.genre}
-    </p>
-    
-    <p class="book-card__year">
-    ${curBook.getFormattedYear()}
-    </p>
-    
-    <div class="book-card__actions">
-    <button class="edit-btn" data-id="${curBook.id}">
-    Edit
-    </button>
-    
-    <button class="delete-btn" data-id="${curBook.id}">
-    Delete
-    </button>
-    </div>
-    
-    
+      <div class="book-card__header">
+
+        <span class="book-card__icon">
+          ${curBook.getGenreIcon()}
+        </span>
+
+        <span class="book-card__status ${curBook.getStatusClass()}">
+          ${curBook.status}
+        </span>
+
+      </div>
+
+      <div class="book-card__info">
+        <h3 class="book-card__title">
+          ${curBook.title}
+        </h3>
+      </div>
+
+      <p class="book-card__author">
+        ${curBook.author}
+      </p>
+
+      <p class="book-card__genre">
+        ${curBook.genre}
+      </p>
+
+      <p class="book-card__year">
+        ${curBook.getFormattedYear()}
+      </p>
+
+      <div class="book-card__actions">
+
+        <button class="edit-btn" data-id="${curBook.id}">
+          Edit
+        </button>
+
+        <button class="delete-btn" data-id="${curBook.id}">
+          Delete
+        </button>
+
+      </div>
     `;
 
-    bookContainer.appendChild(card)
-  })
+    bookContainer.appendChild(card);
+  });
 }
 
-// * to delete the book 
+
+// ====================
+// * DELETE BOOK
+// ====================
 
 bookContainer.addEventListener("click", (e) => {
   if (!e.target.classList.contains("delete-btn")) {
     return;
   }
-  const clickedBtn = e.target.dataset.id;
-  state.books = state.books.filter(curBook => curBook.id !== clickedBtn);
-  saveToStorage()
+
+  const bookId = e.target.dataset.id;
+
+  if (!confirm("Are you sure you want to delete this book?")) {
+    return;
+  }
+
+  state.books = state.books.filter(
+    (curBook) => curBook.id !== bookId
+  );
+
+  saveToStorage();
+
   const filteredBooks = getFilteredBooks(state.books);
-  renderBooks(filteredBooks)
-  updateStats()
 
-})
+  renderBooks(filteredBooks);
 
-// * to edit the book
+  updateStats();
+
+  showToast("Book Deleted!", "error");
+});
+
+
+// ====================
+// * EDIT BOOK
+// ====================
 
 bookContainer.addEventListener("click", (e) => {
-  if (!e.target.classList.contains("edit-btn")) return;
+  if (!e.target.classList.contains("edit-btn")) {
+    return;
+  }
 
-  const clickedBook = e.target.dataset.id;
-  const book = state.books.find(curBook => curBook.id === clickedBook)
-  handleEdit(book)
-})
+  const bookId = e.target.dataset.id;
 
-// * handle edit
+  const book = state.books.find(
+    (curBook) => curBook.id === bookId
+  );
+
+  handleEdit(book);
+});
+
 
 function handleEdit(book) {
   titleInput.value = book.title;
@@ -311,25 +387,26 @@ function handleEdit(book) {
   statusInput.value = book.status;
 
   state.editingBookId = book.id;
-  addOreditBtn.textContent = "Update Book"
-  cancelBtn.classList.remove("hidden")
 
+  addOrEditBtn.textContent = "Update Book";
+
+  cancelBtn.classList.remove("hidden");
 }
 
-// * function updateStats
+
+// ====================
+// * UPDATE STATS
+// ====================
 
 function updateStats() {
-  // * filtering all the read books
   const readBooks = state.books.filter(
     (curBook) => curBook.status === "Read"
   );
 
-  // * filtering all the undread books
   const readingBooks = state.books.filter(
     (curBook) => curBook.status === "Reading"
   );
 
-  // * filtering all unread books
   const unreadBooks = state.books.filter(
     (curBook) => curBook.status === "Unread"
   );
@@ -338,131 +415,230 @@ function updateStats() {
   statRead.textContent = readBooks.length;
   statReading.textContent = readingBooks.length;
   statUnread.textContent = unreadBooks.length;
-
 }
 
 
-// * taking user input and add the books 
+// ====================
+// * ADD / UPDATE BOOK
+// ====================
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   try {
+    const titleInputValue = titleInput.value;
+    const authorInputValue = authorInput.value;
+    const genreInputValue = genreInput.value;
+    const yearInputValue = yearInput.value;
+    const statusInputValue = statusInput.value;
 
-    let titleInputValue = titleInput.value;
+    // Validation
     if (!titleInputValue.trim()) {
-      throw new ValidationError("title cannot be empty!", "title")
+      throw new ValidationError(
+        "Title cannot be empty!",
+        "title"
+      );
     }
-    // * logic for duplicate error
-    state.books.forEach((curElem) => {
-      if (titleInputValue.toLowerCase().trim() === curElem.title.toLowerCase().trim()) {
-        throw new DuplicateBookError(titleInputValue)
+
+    // Duplicate check
+    state.books.forEach((curBook) => {
+      if (state.editingBookId === curBook.id) {
+        return;
       }
-    })
-    let authorInputValue = authorInput.value;
+
+      if (
+        titleInputValue.toLowerCase().trim() ===
+        curBook.title.toLowerCase().trim()
+      ) {
+        throw new DuplicateBookError(titleInputValue);
+      }
+    });
+
     if (!authorInputValue.trim()) {
-      throw new ValidationError("author can't be empty!", "author")
+      throw new ValidationError(
+        "Author can't be empty!",
+        "author"
+      );
     }
-    let genreInputValue = genreInput.value;
+
     if (!genreInputValue) {
-      throw new ValidationError("genre can't be empty!", "genre")
+      throw new ValidationError(
+        "Genre can't be empty!",
+        "genre"
+      );
     }
-    let yearInputValue = yearInput.value
+
     if (!yearInputValue) {
-      throw new ValidationError("year can't be empty!", "year")
+      throw new ValidationError(
+        "Year can't be empty!",
+        "year"
+      );
     }
-    let statusInputValue = statusInput.value;
+
     if (!statusInputValue) {
-      throw new ValidationError("status can't be empty!", "status")
+      throw new ValidationError(
+        "Status can't be empty!",
+        "status"
+      );
     }
 
 
-
-    const newBook = new Book(titleInputValue, authorInputValue, genreInputValue, yearInputValue, statusInputValue)
+    // ADD
     if (state.editingBookId === null) {
-      state.books.push(newBook)
+      const newBook = new Book(
+        titleInputValue,
+        authorInputValue,
+        genreInputValue,
+        yearInputValue,
+        statusInputValue
+      );
 
+      state.books.push(newBook);
+
+      showToast("Book Added!", "success");
     }
+
+
+    // UPDATE
     else {
+      const editedBook = state.books.find(
+        (curBook) =>
+          curBook.id === state.editingBookId
+      );
 
-      const editedBook = state.books.find(curBook => curBook.id === state.editingBookId);
+      editedBook.title = titleInputValue;
+      editedBook.author = authorInputValue;
+      editedBook.genre = genreInputValue;
+      editedBook.year = yearInputValue;
+      editedBook.status = statusInputValue;
 
-      editedBook.title = titleInput.value;
-      editedBook.author = authorInput.value;
-      editedBook.genre = genreInput.value;
-      editedBook.year = yearInput.value;
-      editedBook.status = statusInput.value;
+      showToast("Book Updated!", "success");
     }
-    saveToStorage()
-    updateStats()
-    renderBooks(state.books)
-    errMsg.textContent = ""
-    form.reset()
-    handleEditSuccessOrCancel()
+
+
+    saveToStorage();
+
+    updateStats();
+
+    renderBooks(state.books);
+
+    errMsg.textContent = "";
+
+    form.reset();
+
+    resetFormMode();
+
   } catch (err) {
     errMsg.textContent = err.message;
+    errMsg.classList.remove("hidden");
   }
+});
 
-})
 
-// * handle cancel btn
+// ====================
+// * RESET FORM MODE
+// ====================
 
-cancelBtn.addEventListener("click", handleEditSuccessOrCancel)
+cancelBtn.addEventListener("click", () => {
+  resetFormMode();
 
-// * making reusable component for the edit success or edit cancel
+  showToast("Edit Cancelled!", "success");
+});
 
-function handleEditSuccessOrCancel() {
+
+function resetFormMode() {
   state.editingBookId = null;
-  addOreditBtn.textContent = "Add Book"
+
+  addOrEditBtn.textContent = "Add Book";
+
   cancelBtn.classList.add("hidden");
-  form.reset()
+
+  form.reset();
 }
 
-// * setting up for filter tabs
+
+// ====================
+// * FILTER TABS
+// ====================
 
 function setupFilterTabs() {
-  const fitlerSection = document.querySelector(".filter-section");
-  fitlerSection.addEventListener("click", (e) => {
-    if (!e.target.classList.contains("filter-tab")) return;
+  const filterSection =
+    document.querySelector(".filter-section");
+
+  filterSection.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("filter-tab")) {
+      return;
+    }
+
     const keyArr = Object.keys(e.target.dataset);
-    const key = keyArr[0]
-    const value = e.target.dataset[key]
+
+    const key = keyArr[0];
+
+    const value = e.target.dataset[key];
 
 
-    const parentOne = e.target.closest(".filter-tabs");
-    const activeOne = parentOne.querySelector(".filter-tab.active")
-    activeOne.classList.remove("active")
-    e.target.classList.add("active")
+    const parentOne =
+      e.target.closest(".filter-tabs");
+
+    const activeOne =
+      parentOne.querySelector(".filter-tab.active");
+
+    activeOne.classList.remove("active");
+
+    e.target.classList.add("active");
 
 
     state.filters[key] = value;
-    const filteredOne = getFilteredBooks(state.books);
-    renderBooks(filteredOne)
-  })
+
+    const filteredBooks =
+      getFilteredBooks(state.books);
+
+    renderBooks(filteredBooks);
+  });
 }
 
 setupFilterTabs();
 
 
+// ====================
+// * TOAST
+// ====================
 
-// * toast message
-
+let toastTimer;
 
 function showToast(msg, type = "success") {
-    toastMsg.textContent = msg;
-  setTimeout(() => {
-    // now hide the toast 
-  }, 2000)
+  toastContainer.classList.remove("hidden");
+
+  toastContainer.classList.remove(
+    "error",
+    "success"
+  );
+
+  toastContainer.classList.add(type);
+
+  toastMsg.textContent = msg;
+
+  clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(() => {
+    toastContainer.classList.add("hidden");
+  }, 2000);
 }
 
 
-// * application initial state
+// ====================
+// * INITIALIZE APP
+// ====================
 
 function init() {
   loadFromStorage();
+
   updateStats();
-  const filteredBooks = getFilteredBooks(state.books);
-  renderBooks(filteredBooks)
+
+  const filteredBooks =
+    getFilteredBooks(state.books);
+
+  renderBooks(filteredBooks);
 }
 
-init()
+init();
