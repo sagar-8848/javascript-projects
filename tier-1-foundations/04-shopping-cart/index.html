@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShopCart</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- ── HEADER ── -->
+    <header class="header">
+      <div class="header__inner">
+        <div class="header__brand">
+          <h1 class="header__logo">🛒 ShopCart</h1>
+          <p class="header__sub">Browse and buy your favorites</p>
+        </div>
+        <div class="header__cart-info">
+          <span class="cart-badge" id="cart-badge">0</span>
+          <span class="cart-label">items in cart</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="layout">
+        <!-- ── LEFT — PRODUCTS ── -->
+        <section class="products-section">
+          <div class="section-header">
+            <h2 class="section-title">Products</h2>
+            <span id="product-count" class="section-count">6 products</span>
+          </div>
+          <div id="products-container" class="products-container"></div>
+        </section>
+
+        <!-- ── RIGHT — CART ── -->
+        <aside class="cart-section">
+          <div class="section-header">
+            <h2 class="section-title">Your Cart</h2>
+            <span id="cart-count" class="section-count">0 items</span>
+          </div>
+
+          <!-- EMPTY CART STATE -->
+          <div id="cart-empty" class="empty-state">
+            <p class="empty-state__icon">🛍️</p>
+            <p class="empty-state__text">Cart is empty</p>
+            <p class="empty-state__sub">Add something from the left</p>
+          </div>
+
+          <!-- CART ITEMS -->
+          <div id="cart-container" class="cart-container"></div>
+
+          <!-- COUPON -->
+          <div id="coupon-section" class="coupon-section hidden">
+            <div class="coupon-wrap">
+              <input
+                type="text"
+                id="coupon-input"
+                class="coupon-input"
+                placeholder="Enter coupon code"
+                autocomplete="off"
+              />
+              <button id="coupon-btn" class="btn btn--outline">Apply</button>
+            </div>
+            <p id="coupon-msg" class="coupon-msg hidden"></p>
+          </div>
+
+          <!-- SUMMARY -->
+          <div id="cart-summary" class="cart-summary hidden">
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span id="summary-subtotal">Rs. 0</span>
+            </div>
+            <div class="summary-row" id="discount-row" style="display: none">
+              <span id="discount-label">Discount</span>
+              <span id="summary-discount" class="discount-value">- Rs. 0</span>
+            </div>
+            <div class="summary-row summary-row--total">
+              <span>Total</span>
+              <span id="summary-total">Rs. 0</span>
+            </div>
+
+            <button id="checkout-btn" class="btn btn--primary btn--full">
+              Checkout 🎉
+            </button>
+            <button id="clear-btn" class="btn btn--danger btn--full">
+              Clear Cart 🗑️
+            </button>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast hidden">
+      <span id="toast-msg"></span>
+    </div>
+
+    <!-- RECEIPT MODAL -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+      <div class="modal">
+        <p class="modal__icon">🎉</p>
+        <h2 class="modal__title">Order Placed!</h2>
+        <p class="modal__sub">Thank you for your purchase</p>
+        <div id="modal-items" class="modal__items"></div>
+        <div class="modal__total">
+          <span>Total Paid</span>
+          <span id="modal-total">Rs. 0</span>
+        </div>
+        <button id="modal-close" class="btn btn--primary btn--full">
+          Continue Shopping
+        </button>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
