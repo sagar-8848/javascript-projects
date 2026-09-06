@@ -40,8 +40,9 @@ const seletion1 = new CartItem(p1, 2);
 // * class cart
 
 class Cart {
-  constructor() {
-    this.items = []
+  constructor(tracker) {
+    this.items = [];
+    this.tracker = tracker;
   }
   // * add to cart
 
@@ -50,6 +51,7 @@ class Cart {
     const isDuplicate = this.items.some(curProd => curProd.product === addedProduct);
     if (!isDuplicate) {
       this.items.push(new CartItem(addedProduct, quantity))
+      this.tracker.notify();
     }
     else {
       throw new DuplicateError("Product already exists in the Cart!")
@@ -65,6 +67,7 @@ class Cart {
 
     if (newQuantity <= qtyToBeIncr.product.stock) {
       qtyToBeIncr.quantity = newQuantity;
+      this.tracker.notify();
     }
     else {
       throw new OutOfStockError("OOPS! Out of Stock!")
@@ -81,13 +84,21 @@ class Cart {
 
     if (newQuantity >= 1) {
       qtyToBeDecr.quantity = newQuantity;
+      this.tracker.notify();
+
     }
   }
 
   // * remove item
 
   removeItem(productId) {
+    const prevLength = this.items.length;
     this.items = this.items.filter(curCartItem => curCartItem.product.id !== productId)
+    const newlength = this.items.length;
+    if (newlength < prevLength) {
+      this.tracker.notify();
+    }
+
   }
 
   // * get sub total  
@@ -102,7 +113,11 @@ class Cart {
   // * clear the cart
 
   clearCart() {
+    const prevLength = this.items.length;
     this.items = []
+    if (prevLength > 0) {
+      this.tracker.notify();
+    }
   }
 }
 
@@ -124,54 +139,6 @@ class OutOfStockError extends Error {
 class InvalidCouponError extends Error {
   constructor(msg) {
     super(msg)
-  }
-}
-
-// ! STATE OF THE APPLICATION
-
-const state = {
-  cart: new Cart(tracker),
-  curAppliedCoupon: null,
-}
-
-// * coupon class
-
-class Coupon {
-  constructor(couponCode, disPercentage, expiryDate) {
-    this.couponCode = couponCode;
-    this.disPercentage = disPercentage;
-    this.expiryDate = new Date(expiryDate);
-  }
-
-  isExpired() {
-    const curDate = new Date();
-
-    // * checking if the coupon is expired or not
-    if (curDate > this.expiryDate) {
-      return true
-    }
-    else return false;
-  }
-
-  // * Check if the coupon is valid or not 
-
-  isValid() {
-    return !this.isValid() ? true : false
-  }
-
-  // * calculate the discount amount
-
-  calculateDiscount(subtotal) {
-    if (this.isValid()) {
-      const discountPercentage = this.disPercentage;
-
-      // * now discount amount
-      const discountAmnt = subtotal * discountPercentage / 100;
-      return discountAmnt;
-    }
-    else {
-      throw new InvalidCouponError("the coupon you entered may have expired!")
-    }
   }
 }
 
@@ -211,4 +178,60 @@ const tracker = new TrackChanges();
 
 tracker.subscribe(renderUI)
 tracker.subscribe(updateSummary)
-tracker.notify()
+
+
+// ! STATE OF THE APPLICATION
+
+const state = {
+  cart: new Cart(tracker),
+  curAppliedCoupon: null,
+}
+
+// * coupon class
+
+class Coupon {
+  constructor(couponCode, disPercentage, expiryDate) {
+    this.couponCode = couponCode;
+    this.disPercentage = disPercentage;
+    this.expiryDate = new Date(expiryDate);
+  }
+
+  isExpired() {
+    const curDate = new Date();
+
+    // * checking if the coupon is expired or not
+    if (curDate > this.expiryDate) {
+      return true
+    }
+    else return false;
+  }
+
+  // * Check if the coupon is valid or not 
+
+  isValid() {
+    return !this.isExpired() ? true : false
+  }
+
+  // * calculate the discount amount
+
+  calculateDiscount(subtotal) {
+    if (this.isValid()) {
+      const discountPercentage = this.disPercentage;
+
+      // * now discount amount
+      const discountAmnt = subtotal * discountPercentage / 100;
+      return discountAmnt;
+    }
+    else {
+      throw new InvalidCouponError("the coupon you entered may have expired!")
+    }
+  }
+}
+
+
+
+// * function updateCart (what ever is in the state.cart, just display that in the ui)
+
+function updateCart() {
+  
+}
