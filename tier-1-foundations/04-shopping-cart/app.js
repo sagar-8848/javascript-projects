@@ -1,6 +1,10 @@
 const cartBadge = document.getElementById("cart-badge")
 
+// * cart container where cart items lives
 
+const cartContainer = document.getElementById("cart-container");
+const cartEmpty = document.getElementById("cart-empty");
+const cartCount = document.getElementById("cart-count");
 
 
 // * Product class
@@ -35,7 +39,7 @@ class CartItem {
   }
 }
 
-const seletion1 = new CartItem(p1, 2);
+const selection1 = new CartItem(p1, 2);
 
 // * class cart
 
@@ -166,18 +170,10 @@ class TrackChanges {
 
 // * dummy function to check observer pattern
 
-function renderUI() {
-  console.log("rendered UI")
-}
-
-function updateSummary() {
-  console.log("summary update successful!")
-}
 
 const tracker = new TrackChanges();
 
-tracker.subscribe(renderUI)
-tracker.subscribe(updateSummary)
+
 
 
 // ! STATE OF THE APPLICATION
@@ -229,9 +225,104 @@ class Coupon {
 }
 
 
-
 // * function updateCart (what ever is in the state.cart, just display that in the ui)
+state.cart.addToCart(p1, 1);
+state.cart.addToCart(p2, 4)
+state.cart.addToCart(p3, 2)
+state.cart.addToCart(p4, 6)
+updateCart(state.cart.items)
 
 function updateCart() {
-  
+  cartContainer.innerHTML = "";
+  state.cart.items.forEach((curCartItem) => {
+
+    const card = document.createElement("div");
+    card.classList.add("card")
+
+    const productNameEmoji = document.createElement("div");
+    productNameEmoji.classList.add("productNameEmoji");
+    card.appendChild(productNameEmoji)
+
+    const emoji = document.createElement("div");
+    emoji.classList.add("emoji")
+    emoji.textContent = `${curCartItem.product.emoji}`
+
+    const prodName = document.createElement("h3");
+    prodName.classList.add("prodName");
+    prodName.textContent = `${curCartItem.product.name}`
+
+    productNameEmoji.appendChild(emoji)
+    productNameEmoji.appendChild(prodName)
+
+    const price = document.createElement("h4");
+    price.classList.add("price");
+    price.textContent = `RS. ${curCartItem.product.price}`
+    card.appendChild(price)
+
+    const qty = document.createElement("h5");
+    qty.classList.add("qty");
+    qty.textContent = `${curCartItem.quantity}`
+    card.appendChild(qty)
+
+    const qtyControls = document.createElement("div");
+    qtyControls.classList.add("qty-controls");
+
+    // ! decrease button
+    const decreaseBtn = document.createElement("button");
+    decreaseBtn.classList.add("qty-btn");
+    decreaseBtn.textContent = "-";
+
+    // ! decrease button functionality
+
+    decreaseBtn.addEventListener("click", () => {
+      const productId = curCartItem.product.id;
+      state.cart.decreaseQuantity(productId)
+    })
+
+    const quantityDisplay = document.createElement("span");
+    quantityDisplay.classList.add("qty-display");
+    quantityDisplay.textContent = curCartItem.quantity;
+
+    // ! increase button
+
+    const increaseBtn = document.createElement("button");
+    increaseBtn.classList.add("qty-btn");
+    increaseBtn.textContent = "+";
+    // ! increase button functionality
+
+    increaseBtn.addEventListener("click", () => {
+      const productId = curCartItem.product.id;
+      state.cart.increaseQuantity(productId)
+    })
+
+    // ! delete button
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.classList.add("delete-btn");
+    deleteBtn.textContent = "🗑️";
+
+    // ! delete button functionality
+
+    deleteBtn.addEventListener("click", () => {
+      const productId = curCartItem.product.id;
+      state.cart.removeItem(productId)
+    })
+
+    qtyControls.appendChild(decreaseBtn);
+    qtyControls.appendChild(quantityDisplay);
+    qtyControls.appendChild(increaseBtn);
+    qtyControls.appendChild(deleteBtn)
+
+    card.appendChild(qtyControls);
+
+
+    cartContainer.appendChild(card)
+
+  })
 }
+
+
+tracker.subscribe(updateCart)
+
+
+// * to render the products available 

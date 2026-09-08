@@ -533,3 +533,185 @@ body {
 .hidden {
   display: none !important;
 }
+
+/* *  ── CART ITEM CARD ── */
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+
+  transition:
+    border-color var(--transition),
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+/* ── PRODUCT NAME + EMOJI ── */
+
+.productNameEmoji {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  flex: 1;
+  min-width: 0;
+}
+
+.emoji {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.prodName {
+  margin: 0;
+
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── PRICE ── */
+
+.price {
+  margin: 0;
+
+  min-width: 75px;
+
+  color: var(--success);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ── OLD QUANTITY ELEMENT ── */
+
+.qty {
+  display: none;
+}
+
+/* ── QUANTITY CONTROLS ── */
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ── QUANTITY BUTTONS ── */
+
+.qty-btn {
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 6px;
+  border: 1px solid var(--border);
+
+  background: var(--surface);
+  color: var(--text);
+
+  cursor: pointer;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    transform var(--transition);
+}
+
+/* Minus button */
+
+.qty-btn:first-child {
+  color: var(--danger);
+}
+
+.qty-btn:first-child:hover {
+  background: rgba(255, 77, 106, 0.12);
+  border-color: var(--danger);
+  transform: scale(1.05);
+}
+
+/* Plus button */
+
+.qty-btn:last-child {
+  color: var(--success);
+}
+
+.qty-btn:last-child:hover {
+  background: rgba(62, 207, 142, 0.12);
+  border-color: var(--success);
+  transform: scale(1.05);
+}
+
+/* ── QUANTITY NUMBER ── */
+
+.qty-display {
+  min-width: 22px;
+
+  color: var(--text);
+  text-align: center;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+/* ── DELETE BUTTON ── */
+
+.delete-btn {
+  width: 28px;
+  height: 28px;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  border-radius: 6px;
+  border: 1px solid var(--border);
+
+  background: transparent;
+  color: var(--danger);
+
+  cursor: pointer;
+
+  font-size: 14px;
+  line-height: 1;
+
+  margin-left: 8px; /* Gives a little breathing room from the +/- buttons */
+
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    transform var(--transition);
+}
+
+.delete-btn:hover {
+  background: var(--danger);
+  color: white; /* Makes the emoji white on hover */
+  border-color: var(--danger);
+  transform: scale(1.05); /* Matches your other buttons! */
