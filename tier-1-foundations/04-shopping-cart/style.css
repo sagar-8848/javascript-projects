@@ -715,3 +715,4 @@ body {
   color: white; /* Makes the emoji white on hover */
   border-color: var(--danger);
   transform: scale(1.05); /* Matches your other buttons! */
+}

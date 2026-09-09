@@ -1,5 +1,7 @@
 const cartBadge = document.getElementById("cart-badge")
 
+const productContainer = document.getElementById("products-container");
+
 // * cart container where cart items lives
 
 const cartContainer = document.getElementById("cart-container");
@@ -24,10 +26,14 @@ const p3 = new Product("Leather Bag", 4500, 2, "👜");
 const p4 = new Product("Sunglasses", 2200, 8, "🕶️");
 const p5 = new Product("Running Shoes", 6500, 3, "🏃");
 const p6 = new Product("Hoodie", 3500, 6, "🧥");
+const p7 = new Product("Puma Running Shoe", 3300, 3, "👟");
+const p8 = new Product("LV BAG", 1000, 10, "👜");
+const p9 = new Product("Gucci Bag", 3500, 20, "👝");
+const p10 = new Product("Caliber T-shirt", 3500, 25, "👚");
 
 const products = [];
 
-products.push(p1, p2, p3, p4, p5, p6);
+products.push(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
 
 
 // * Cart Item
@@ -226,10 +232,7 @@ class Coupon {
 
 
 // * function updateCart (what ever is in the state.cart, just display that in the ui)
-state.cart.addToCart(p1, 1);
-state.cart.addToCart(p2, 4)
-state.cart.addToCart(p3, 2)
-state.cart.addToCart(p4, 6)
+
 updateCart(state.cart.items)
 
 function updateCart() {
@@ -326,3 +329,84 @@ tracker.subscribe(updateCart)
 
 
 // * to render the products available 
+
+function renderProducts() {
+  productContainer.innerHTML = ""
+  products.forEach((curProduct) => {
+    try {
+      const productCard = document.createElement("div");
+      productCard.classList.add("product-card");
+
+      const emoji = document.createElement("div");
+      emoji.classList.add("product-card__emoji");
+      emoji.textContent = curProduct.emoji;
+
+      const productName = document.createElement("div");
+      productName.classList.add("product-card__name");
+      productName.textContent = curProduct.name;
+
+      const productPrice = document.createElement("div");
+      productPrice.classList.add("product-card__price");
+      productPrice.textContent = `RS. ${curProduct.price}`;
+
+      const stock = document.createElement("div");
+      stock.classList.add("product-card__stock");
+      stock.textContent = `Stock Left : ${curProduct.stock} Pcs`;
+
+      const btnWrapper = document.createElement("div");
+      btnWrapper.classList.add("btn-wrapper");
+
+      const addToCartBtn = document.createElement("button");
+      addToCartBtn.classList.add("product-card__button")
+      addToCartBtn.classList.add("btn")
+      addToCartBtn.textContent = "Add To Cart"
+
+      addToCartBtn.addEventListener("click", () => {
+        state.cart.addToCart(curProduct, 1)
+      })
+
+
+      productCard.appendChild(emoji)
+      productCard.appendChild(productName)
+      productCard.appendChild(productPrice)
+      productCard.appendChild(stock)
+      btnWrapper.appendChild(addToCartBtn)
+      productCard.appendChild(btnWrapper)
+
+      productContainer.appendChild(productCard)
+    }
+    catch (err) {
+      alert(err.message)
+    }
+
+
+
+  })
+}
+
+
+
+function saveCart() {
+  const cartJSON = JSON.stringify(state.cart.items)
+  localStorage.setItem("cartItems", cartJSON)
+}
+
+tracker.subscribe(saveCart);
+
+
+function loadFromStorage() {
+  const savedCart = localStorage.getItem("cartItems");
+  if (savedCart) {
+    const parsedItems = JSON.parse(savedCart);
+    state.cart.items = parsedItems
+  }
+  renderProducts();
+  updateCart()
+}
+
+function init() {
+  loadFromStorage()
+}
+
+
+init()
