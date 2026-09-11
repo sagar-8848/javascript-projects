@@ -1,12 +1,39 @@
-const cartBadge = document.getElementById("cart-badge")
 
 const productContainer = document.getElementById("products-container");
-
+const cartSection = document.getElementById("cart-section")
 // * cart container where cart items lives
 
+// * DOM Elements Cache
+const cartBadge = document.getElementById("cart-badge");
 const cartContainer = document.getElementById("cart-container");
 const cartEmpty = document.getElementById("cart-empty");
 const cartCount = document.getElementById("cart-count");
+const cartSummary = document.getElementById("cart-summary");
+const summarySubtotal = document.getElementById("summary-subtotal");
+const summaryTotal = document.getElementById("summary-total");
+const discountRow = document.getElementById("discount-row");
+const summaryDiscount = document.getElementById("summary-discount");
+const discountLabel = document.getElementById("discount-label");
+
+
+// * Coupon Elements
+const couponSection = document.getElementById("coupon-section");
+const couponInput = document.getElementById("coupon-input");
+const couponBtn = document.getElementById("coupon-btn");
+const couponMsg = document.getElementById("coupon-msg");
+
+// * Action Buttons
+const clearBtn = document.getElementById("clear-btn");
+const checkoutBtn = document.getElementById("checkout-btn");
+
+// * Toast & Modal
+const toast = document.getElementById("toast");
+const toastMsg = document.getElementById("toast-msg");
+const modalOverlay = document.getElementById("modal-overlay");
+const modalItems = document.getElementById("modal-items");
+const modalTotal = document.getElementById("modal-total");
+const modalClose = document.getElementById("modal-close");
+
 
 
 // * Product class
@@ -129,6 +156,8 @@ class Cart {
       this.tracker.notify();
     }
   }
+
+
 }
 
 
@@ -236,96 +265,120 @@ class Coupon {
 updateCart(state.cart.items)
 
 function updateCart() {
+  const isEmpty = state.cart.items.length === 0;
   cartContainer.innerHTML = "";
-  state.cart.items.forEach((curCartItem) => {
+  if (!isEmpty) {
+    state.cart.items.forEach((curCartItem) => {
 
-    const card = document.createElement("div");
-    card.classList.add("card")
+      const card = document.createElement("div");
+      card.classList.add("card")
 
-    const productNameEmoji = document.createElement("div");
-    productNameEmoji.classList.add("productNameEmoji");
-    card.appendChild(productNameEmoji)
+      const productNameEmoji = document.createElement("div");
+      productNameEmoji.classList.add("productNameEmoji");
+      card.appendChild(productNameEmoji)
 
-    const emoji = document.createElement("div");
-    emoji.classList.add("emoji")
-    emoji.textContent = `${curCartItem.product.emoji}`
+      const emoji = document.createElement("div");
+      emoji.classList.add("emoji")
+      emoji.textContent = `${curCartItem.product.emoji}`
 
-    const prodName = document.createElement("h3");
-    prodName.classList.add("prodName");
-    prodName.textContent = `${curCartItem.product.name}`
+      const prodName = document.createElement("h3");
+      prodName.classList.add("prodName");
+      prodName.textContent = `${curCartItem.product.name}`
 
-    productNameEmoji.appendChild(emoji)
-    productNameEmoji.appendChild(prodName)
+      productNameEmoji.appendChild(emoji)
+      productNameEmoji.appendChild(prodName)
 
-    const price = document.createElement("h4");
-    price.classList.add("price");
-    price.textContent = `RS. ${curCartItem.product.price}`
-    card.appendChild(price)
+      const price = document.createElement("h4");
+      price.classList.add("price");
+      price.textContent = `RS. ${curCartItem.product.price}`
+      card.appendChild(price)
 
-    const qty = document.createElement("h5");
-    qty.classList.add("qty");
-    qty.textContent = `${curCartItem.quantity}`
-    card.appendChild(qty)
+      const qty = document.createElement("h5");
+      qty.classList.add("qty");
+      qty.textContent = `${curCartItem.quantity}`
+      card.appendChild(qty)
 
-    const qtyControls = document.createElement("div");
-    qtyControls.classList.add("qty-controls");
+      const qtyControls = document.createElement("div");
+      qtyControls.classList.add("qty-controls");
 
-    // ! decrease button
-    const decreaseBtn = document.createElement("button");
-    decreaseBtn.classList.add("qty-btn");
-    decreaseBtn.textContent = "-";
+      // ! decrease button
+      const decreaseBtn = document.createElement("button");
+      decreaseBtn.classList.add("qty-btn");
+      decreaseBtn.textContent = "-";
 
-    // ! decrease button functionality
+      // ! decrease button functionality
 
-    decreaseBtn.addEventListener("click", () => {
-      const productId = curCartItem.product.id;
-      state.cart.decreaseQuantity(productId)
+      decreaseBtn.addEventListener("click", () => {
+        const productId = curCartItem.product.id;
+        state.cart.decreaseQuantity(productId)
+      })
+
+      const quantityDisplay = document.createElement("span");
+      quantityDisplay.classList.add("qty-display");
+      quantityDisplay.textContent = curCartItem.quantity;
+
+      // ! increase button
+
+      const increaseBtn = document.createElement("button");
+      increaseBtn.classList.add("qty-btn");
+      increaseBtn.textContent = "+";
+      // ! increase button functionality
+
+      increaseBtn.addEventListener("click", () => {
+        const productId = curCartItem.product.id;
+        state.cart.increaseQuantity(productId)
+      })
+
+      // ! delete button
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.classList.add("delete-btn");
+      deleteBtn.textContent = "🗑️";
+
+      // ! delete button functionality
+
+      deleteBtn.addEventListener("click", () => {
+        const productId = curCartItem.product.id;
+        state.cart.removeItem(productId)
+      })
+
+      qtyControls.appendChild(decreaseBtn);
+      qtyControls.appendChild(quantityDisplay);
+      qtyControls.appendChild(increaseBtn);
+      qtyControls.appendChild(deleteBtn)
+
+      card.appendChild(qtyControls);
+
+
+      cartContainer.appendChild(card)
+
+      // * summary 
+
+
+      summarySubtotal.classList.add("summary-subtotal");
+      summarySubtotal.innerHTML = `${state.cart.getSubTotal()}`;
+
     })
+    cartEmpty.classList.add("hidden");
+    const countBadge = state.cart.items.reduce((acc, curVal) => {
+      return acc + curVal.quantity
+    }, 0);
+    cartBadge.textContent = `${countBadge}`;
+    cartCount.textContent = `${state.cart.items.length} Item`;
+  }
+  else {
+    cartEmpty.classList.remove("hidden");
+    cartBadge.textContent = "0";
+    cartCount.textContent = "0 Items"
+  }
 
-    const quantityDisplay = document.createElement("span");
-    quantityDisplay.classList.add("qty-display");
-    quantityDisplay.textContent = curCartItem.quantity;
-
-    // ! increase button
-
-    const increaseBtn = document.createElement("button");
-    increaseBtn.classList.add("qty-btn");
-    increaseBtn.textContent = "+";
-    // ! increase button functionality
-
-    increaseBtn.addEventListener("click", () => {
-      const productId = curCartItem.product.id;
-      state.cart.increaseQuantity(productId)
-    })
-
-    // ! delete button
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.classList.add("delete-btn");
-    deleteBtn.textContent = "🗑️";
-
-    // ! delete button functionality
-
-    deleteBtn.addEventListener("click", () => {
-      const productId = curCartItem.product.id;
-      state.cart.removeItem(productId)
-    })
-
-    qtyControls.appendChild(decreaseBtn);
-    qtyControls.appendChild(quantityDisplay);
-    qtyControls.appendChild(increaseBtn);
-    qtyControls.appendChild(deleteBtn)
-
-    card.appendChild(qtyControls);
-
-
-    cartContainer.appendChild(card)
-
-  })
 }
 
 
 tracker.subscribe(updateCart)
+
+// * to update the badge 
+
 
 
 // * to render the products available 

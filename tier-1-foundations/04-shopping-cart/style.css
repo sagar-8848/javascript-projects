@@ -678,13 +678,12 @@ body {
   font-weight: 700;
 }
 
-
 /* ── DELETE BUTTON ── */
 
 .delete-btn {
   width: 28px;
   height: 28px;
-  
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -715,4 +714,22 @@ body {
   color: white; /* Makes the emoji white on hover */
   border-color: var(--danger);
   transform: scale(1.05); /* Matches your other buttons! */
+}
+
+/* ── SUBTOTAL STYLING ── */
+
+.summary-subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+}
+
+.subTotal-amount {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--success);
+  letter-spacing: -0.5px;
 }
