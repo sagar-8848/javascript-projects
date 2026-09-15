@@ -237,6 +237,8 @@ class Coupon {
     else return false;
   }
 
+
+
   // * Check if the coupon is valid or not 
 
   isValid() {
@@ -259,6 +261,10 @@ class Coupon {
   }
 }
 
+const c1 = new Coupon("SAVE10", 10, '2026-09-17');
+const c2 = new Coupon("SAVE50", 50, '2020-09-14');
+
+const availableCoupons = [c1, c2]
 
 // * function updateCart (what ever is in the state.cart, just display that in the ui)
 
@@ -268,6 +274,7 @@ function updateCart() {
   const isEmpty = state.cart.items.length === 0;
   cartContainer.innerHTML = "";
   if (!isEmpty) {
+    cartSummary.classList.remove("hidden")
     state.cart.items.forEach((curCartItem) => {
 
       const card = document.createElement("div");
@@ -354,11 +361,8 @@ function updateCart() {
 
       // * summary 
 
-
-      summarySubtotal.classList.add("summary-subtotal");
-      summarySubtotal.innerHTML = `${state.cart.getSubTotal()}`;
-
     })
+    updateSummary()
     cartEmpty.classList.add("hidden");
     const countBadge = state.cart.items.reduce((acc, curVal) => {
       return acc + curVal.quantity
@@ -370,8 +374,8 @@ function updateCart() {
     cartEmpty.classList.remove("hidden");
     cartBadge.textContent = "0";
     cartCount.textContent = "0 Items"
+    cartSummary.classList.add("hidden")
   }
-
 }
 
 
@@ -438,6 +442,45 @@ function renderProducts() {
 }
 
 
+// * function to update the summary cart
+
+function updateSummary() {
+  // 1. Get the subtotal
+  const subtotal = state.cart.getSubTotal();
+
+  // 2. Put subtotal on the screen
+  summarySubtotal.textContent = "Rs. " + subtotal;
+
+  // 3. Check if a coupon exists
+  if (state.curAppliedCoupon) {
+    // Do the discount math
+    const discountAmount = state.curAppliedCoupon.calculateDiscount(subtotal);
+
+    // Show the discount row and update the text
+    discountRow.classList.remove("hidden");
+    summaryDiscount.textContent = "- Rs. " + discountAmount;
+
+    // Update the final total
+    summaryTotal.textContent = "Rs. " + (subtotal - discountAmount);
+  } else {
+    // If no coupon, hide the discount row and total is just subtotal
+    discountRow.classList.add("hidden");
+    summaryTotal.textContent = "Rs. " + subtotal;
+  }
+}
+
+clearBtn.addEventListener("click", () => {
+  state.cart.clearCart()
+  alert("you are clearing cart!")
+
+  // * after clearing the button, the coupon must also be cleared from the state so, 
+  state.curAppliedCoupon = null;
+
+  couponInput.textContent = ""
+  couponInput.classList.add("hidden");
+  updateSummary()
+
+})
 
 function saveCart() {
   const cartJSON = JSON.stringify(state.cart.items)
@@ -445,6 +488,39 @@ function saveCart() {
 }
 
 tracker.subscribe(saveCart);
+
+
+
+// ? to get the input coupon from the user
+
+
+couponBtn.addEventListener("click", () => {
+  // ? getting the coupon first
+
+  const userCoupon = couponInput.value.toLowerCase();
+
+  const foundCoupon = availableCoupons.find(curCoupon => curCoupon.couponCode.toLowerCase() === userCoupon);
+  if (!foundCoupon) {
+    console.log("Invalid Coupon Code")
+    return
+  }
+  if (foundCoupon) {
+    try {
+      foundCoupon.calculateDiscount(state.cart.getSubTotal())
+      state.curAppliedCoupon = foundCoupon;
+      console.log("discount applied success!")
+      couponMsg.classList.remove("hidden")
+      couponMsg.textContent = `${foundCoupon.disPercentage} % Discount Applied!`
+      couponMsg.classList.add("coupon-msg--success")
+      updateSummary()
+
+    } catch (err) {
+      console.log(err.message)
+    }
+  }
+})
+
+
 
 
 function loadFromStorage() {
@@ -456,6 +532,7 @@ function loadFromStorage() {
   renderProducts();
   updateCart()
 }
+
 
 function init() {
   loadFromStorage()

@@ -733,3 +733,12 @@ body {
   color: var(--success);
   letter-spacing: -0.5px;
 }
+
+/* Make the subtotal price pop */
+#summary-subtotal {
+  color: var(--success);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.5px;
+  display: 
+}
