@@ -270,10 +270,12 @@ const availableCoupons = [c1, c2]
 
 updateCart(state.cart.items)
 
+// * update cart 
 function updateCart() {
   const isEmpty = state.cart.items.length === 0;
   cartContainer.innerHTML = "";
   if (!isEmpty) {
+    couponSection.classList.remove("hidden")
     cartSummary.classList.remove("hidden")
     state.cart.items.forEach((curCartItem) => {
 
@@ -372,6 +374,8 @@ function updateCart() {
   }
   else {
     cartEmpty.classList.remove("hidden");
+    couponSection.classList.add("hidden")
+
     cartBadge.textContent = "0";
     cartCount.textContent = "0 Items"
     cartSummary.classList.add("hidden")
@@ -469,6 +473,7 @@ function updateSummary() {
   }
 }
 
+// * clear cart btn 
 clearBtn.addEventListener("click", () => {
   state.cart.clearCart()
   alert("you are clearing cart!")
@@ -477,7 +482,7 @@ clearBtn.addEventListener("click", () => {
   state.curAppliedCoupon = null;
 
   couponInput.textContent = ""
-  couponInput.classList.add("hidden");
+  couponSection.classList.add("hidden");
   updateSummary()
 
 })
@@ -520,9 +525,68 @@ couponBtn.addEventListener("click", () => {
   }
 })
 
+checkoutBtn.addEventListener("click", () => {
+  // console.log("clicked on the checkout btn")
+  modalOverlay.classList.remove("hidden")
+  modalItems.innerHTML = "";
+  state.cart.items.forEach((curItem) => {
+
+    const stockBeforePurcahase = curItem.product.stock;
+    const purchasedStcok = curItem.quantity;
+
+    const stockAfterPurchase = stockBeforePurcahase - purchasedStcok;
+
+    curItem.product.stock = stockAfterPurchase;
 
 
+    const modalItem = document.createElement("div");
+    modalItem.classList.add("modal__item");
 
+    const span1 = document.createElement("span")
+    span1.textContent = `${curItem.quantity}X ${curItem.product.name}`
+
+    const span2 = document.createElement("span");
+    span2.textContent = `${curItem.quantity * curItem.product.price}`
+
+
+    modalItem.appendChild(span1);
+    modalItem.appendChild(span2);
+
+    modalItems.appendChild(modalItem)
+  })
+  let finalTotal = state.cart.getSubTotal();
+  if (state.curAppliedCoupon) {
+    const discountAmount = state.curAppliedCoupon.calculateDiscount(finalTotal);
+    const discountRow = document.createElement("div");
+    discountRow.classList.add("modal__item")
+    const span1 = document.createElement("span")
+    span1.textContent = "Discount Amount "
+    const span2 = document.createElement("span")
+    span2.textContent = `- Rs. ${discountAmount}`
+
+    discountRow.appendChild(span1)
+    discountRow.appendChild(span2)
+    modalItems.appendChild(discountRow)
+    finalTotal = finalTotal - discountAmount;
+  }
+
+  modalTotal.textContent = `Rs. ${finalTotal}`;
+})
+
+
+// * close modal button
+
+modalClose.addEventListener("click", () => {
+  modalOverlay.classList.add("hidden")
+  state.cart.clearCart()
+  state.curAppliedCoupon = null;
+  couponInput.value = "";
+  couponMsg.classList.add("hidden");
+  updateSummary()
+})
+
+
+// * load from local storage
 function loadFromStorage() {
   const savedCart = localStorage.getItem("cartItems");
   if (savedCart) {
