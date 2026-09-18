@@ -3,112 +3,730 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JavaScript Projects</title>
-
+    <title>JavaScript Projects — Sagar Suwal</title>
     <style>
-      * {
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
         margin: 0;
         padding: 0;
-        box-sizing: border-box;
+      }
+
+      :root {
+        --bg: #0f1117;
+        --surface: #1a1d27;
+        --surface-2: #222536;
+        --border: #2e3249;
+        --accent: #6c63ff;
+        --accent-2: #38bdf8;
+        --accent-3: #3ecf8e;
+        --accent-4: #f5a623;
+        --danger: #ff4d6a;
+        --text: #e8e8f0;
+        --muted: #7b7d9a;
+        --radius: 14px;
+        --radius-sm: 8px;
       }
 
       body {
-        font-family: Arial, Helvetica, sans-serif;
-        background: #111827;
-        color: white;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, sans-serif;
         min-height: 100vh;
+        padding: 48px 20px 80px;
+      }
+
+      /* ── HERO ── */
+      .hero {
+        max-width: 760px;
+        margin: 0 auto 56px;
+        text-align: center;
+      }
+
+      .hero__badge {
+        display: inline-block;
+        background: rgba(108, 99, 255, 0.12);
+        border: 1px solid rgba(108, 99, 255, 0.3);
+        border-radius: 99px;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 5px 14px;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+      }
+
+      .hero__title {
+        font-size: clamp(32px, 6vw, 54px);
+        font-weight: 800;
+        letter-spacing: -1.5px;
+        line-height: 1.1;
+        margin-bottom: 16px;
+      }
+
+      .hero__title span {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero__sub {
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.7;
+        max-width: 520px;
+        margin: 0 auto 28px;
+      }
+
+      .hero__stats {
         display: flex;
         justify-content: center;
+        gap: 32px;
+        flex-wrap: wrap;
+      }
+
+      .hero__stat {
+        text-align: center;
+      }
+
+      .hero__stat-num {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--accent);
+      }
+
+      .hero__stat-label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 2px;
+      }
+
+      /* ── STACK ── */
+      .stack {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 56px;
+      }
+
+      .tag {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 99px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 12px;
+      }
+
+      /* ── TIER ── */
+      .tier {
+        max-width: 760px;
+        margin: 0 auto 48px;
+      }
+
+      .tier__header {
+        display: flex;
         align-items: center;
-        padding: 40px;
-      }
-
-      .container {
-        width: 700px;
-        max-width: 100%;
-      }
-
-      h1 {
-        font-size: 42px;
-        margin-bottom: 12px;
-      }
-
-      p {
-        color: #9ca3af;
-        margin-bottom: 40px;
-      }
-
-      .project {
-        display: block;
-        text-decoration: none;
-        color: white;
-        background: #1f2937;
-        padding: 20px;
-        border-radius: 12px;
+        gap: 12px;
         margin-bottom: 20px;
-        transition: 0.2s;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
       }
 
-      .project:hover {
-        transform: translateY(-3px);
-        background: #374151;
+      .tier__icon {
+        background: var(--surface-2);
+        border-radius: var(--radius-sm);
+        font-size: 20px;
+        height: 44px;
+        width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
       }
 
-      h2 {
-        margin-bottom: 8px;
+      .tier__meta {
+        flex: 1;
       }
 
-      span {
-        color: #9ca3af;
+      .tier__name {
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
       }
 
-      .coming {
-        opacity: 0.5;
+      .tier__desc {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 2px;
+      }
+
+      .tier__count {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 99px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 12px;
+        white-space: nowrap;
+      }
+
+      /* ── PROJECTS GRID ── */
+      .projects {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 14px;
+      }
+
+      @media (max-width: 480px) {
+        .projects {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ── PROJECT CARD ── */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        text-decoration: none;
+        color: var(--text);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition:
+          border-color 0.2s,
+          transform 0.2s;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          var(--card-color, var(--accent)),
+          transparent
+        );
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .card:hover {
+        border-color: var(--card-color, var(--accent));
+        transform: translateY(-2px);
+      }
+
+      .card:hover::before {
+        opacity: 1;
+      }
+
+      .card--coming {
+        opacity: 0.45;
         pointer-events: none;
+        cursor: default;
+      }
+
+      .card__top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .card__emoji {
+        background: var(--surface-2);
+        border-radius: var(--radius-sm);
+        font-size: 22px;
+        height: 48px;
+        width: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .card__status {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 99px;
+        border: 1px solid;
+        white-space: nowrap;
+      }
+
+      .card__status--done {
+        color: var(--accent-3);
+        border-color: var(--accent-3);
+        background: rgba(62, 207, 142, 0.08);
+      }
+
+      .card__status--soon {
+        color: var(--muted);
+        border-color: var(--border);
+        background: transparent;
+      }
+
+      .card__status--building {
+        color: var(--accent-4);
+        border-color: var(--accent-4);
+        background: rgba(245, 166, 35, 0.08);
+      }
+
+      .card__title {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+        margin-top: 10px;
+      }
+
+      .card__desc {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .card__tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+      }
+
+      .card__tag {
+        background: var(--surface-2);
+        border-radius: 99px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 8px;
+      }
+
+      .card__arrow {
+        position: absolute;
+        bottom: 18px;
+        right: 18px;
+        color: var(--muted);
+        font-size: 16px;
+        transition:
+          transform 0.2s,
+          color 0.2s;
+      }
+
+      .card:hover .card__arrow {
+        transform: translate(2px, -2px);
+        color: var(--card-color, var(--accent));
+      }
+
+      /* ── FOOTER ── */
+      .footer {
+        max-width: 760px;
+        margin: 56px auto 0;
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+        border-top: 1px solid var(--border);
+        padding-top: 28px;
+      }
+
+      .footer a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .footer a:hover {
+        text-decoration: underline;
       }
     </style>
   </head>
 
   <body>
-    <div class="container">
-      <h1>🚀 JavaScript Projects</h1>
-
-      <p>Projects built while learning JavaScript.</p>
-
-      <!-- Devlinks -->
-      <a
-        class="project"
-        href="./tier-1-foundations/01-devlinks/index.html"
-        target="_blank"
-      >
-        <h2>🔗 DevLinks</h2>
-        <span>Link manager using LocalStorage & DOM.</span>
-      </a>
-
-      <!-- ExpenseIQ -->
-      <a
-        class="project"
-        href="./tier-1-foundations/02-expenseiq/index.html"
-        target="_blank"
-      >
-        <h2>💰 ExpenseIQ</h2>
-        <span>Code Organization</span>
-      </a>
-
-      <!-- Book library -->
-      <a
-        class="project"
-        href="./tier-1-foundations/03-book-library/index.html"
-        target="_blank"
-      >
-        <h2>📚 Book Library</h2>
-        <span>OOP</span>
-      </a>
-
-      <div class="project coming">
-        <h2>🛒 Shopping Cart</h2>
-        <span>Coming Soon...</span>
+    <!-- ── HERO ── -->
+    <div class="hero">
+      <div class="hero__badge">Vanilla JavaScript</div>
+      <h1 class="hero__title">JavaScript<br /><span>Projects</span></h1>
+      <p class="hero__sub">
+        19 projects built while mastering JavaScript from fundamentals to
+        advanced patterns — no frameworks, pure JS only.
+      </p>
+      <div class="hero__stats">
+        <div class="hero__stat">
+          <div class="hero__stat-num">4</div>
+          <div class="hero__stat-label">Completed</div>
+        </div>
+        <div class="hero__stat">
+          <div class="hero__stat-num">19</div>
+          <div class="hero__stat-label">Total Projects</div>
+        </div>
+        <div class="hero__stat">
+          <div class="hero__stat-num">4</div>
+          <div class="hero__stat-label">Tiers</div>
+        </div>
       </div>
+    </div>
+
+    <!-- ── STACK TAGS ── -->
+    <div class="stack">
+      <span class="tag">HTML5</span>
+      <span class="tag">CSS3</span>
+      <span class="tag">ES6+</span>
+      <span class="tag">OOP</span>
+      <span class="tag">Design Patterns</span>
+      <span class="tag">Async/Await</span>
+      <span class="tag">localStorage</span>
+      <span class="tag">REST APIs</span>
+    </div>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- TIER 1 — FOUNDATIONS              -->
+    <!-- ══════════════════════════════════ -->
+    <div class="tier">
+      <div class="tier__header">
+        <div class="tier__icon">🏗️</div>
+        <div class="tier__meta">
+          <div class="tier__name">Tier 1 — Foundations</div>
+          <div class="tier__desc">
+            DOM mastery · OOP · State management · localStorage
+          </div>
+        </div>
+        <div class="tier__count">4 projects</div>
+      </div>
+
+      <div class="projects">
+        <!-- DevLinks -->
+        <a
+          class="card"
+          href="https://sagar-8848.github.io/javascript-projects/tier-1-foundations/01-devlinks/index.html"
+          target="_blank"
+          style="--card-color: #6c63ff"
+        >
+          <div class="card__top">
+            <div class="card__emoji">🔗</div>
+            <div class="card__status card__status--done">✅ Done</div>
+          </div>
+          <div class="card__title">DevLinks</div>
+          <div class="card__desc">
+            Personal dev link manager. Add, copy and delete profile links.
+            Persists via localStorage.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">DOM</span>
+            <span class="card__tag">localStorage</span>
+            <span class="card__tag">Clipboard API</span>
+          </div>
+          <span class="card__arrow">↗</span>
+        </a>
+
+        <!-- ExpenseIQ -->
+        <a
+          class="card"
+          href="https://sagar-8848.github.io/javascript-projects/tier-1-foundations/02-expenseiq/index.html"
+          target="_blank"
+          style="--card-color: #3ecf8e"
+        >
+          <div class="card__top">
+            <div class="card__emoji">💰</div>
+            <div class="card__status card__status--done">✅ Done</div>
+          </div>
+          <div class="card__title">ExpenseIQ</div>
+          <div class="card__desc">
+            Smart expense tracker with live stats, category filters, search and
+            Builder + Observer patterns.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">Classes</span>
+            <span class="card__tag">Builder Pattern</span>
+            <span class="card__tag">Observer</span>
+            <span class="card__tag">Debounce</span>
+          </div>
+          <span class="card__arrow">↗</span>
+        </a>
+
+        <!-- Book Library -->
+        <a
+          class="card"
+          href="https://sagar-8848.github.io/javascript-projects/tier-1-foundations/03-book-library/index.html"
+          target="_blank"
+          style="--card-color: #38bdf8"
+        >
+          <div class="card__top">
+            <div class="card__emoji">📚</div>
+            <div class="card__status card__status--done">✅ Done</div>
+          </div>
+          <div class="card__title">Book Library</div>
+          <div class="card__desc">
+            Personal reading tracker with genre and status filters, edit mode
+            and OOP inheritance.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">Inheritance</span>
+            <span class="card__tag">Custom Errors</span>
+            <span class="card__tag">Event Delegation</span>
+          </div>
+          <span class="card__arrow">↗</span>
+        </a>
+
+        <!-- Shopping Cart -->
+        <a
+          class="card"
+          href="https://sagar-8848.github.io/javascript-projects/tier-1-foundations/04-shopping-cart/index.html"
+          target="_blank"
+          style="--card-color: #f5a623"
+        >
+          <div class="card__top">
+            <div class="card__emoji">🛒</div>
+            <div class="card__status card__status--done">✅ Done</div>
+          </div>
+          <div class="card__title">ShopCart</div>
+          <div class="card__desc">
+            Full shopping cart with coupons, stock management, checkout modal
+            and Observer pattern.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">Observer</span>
+            <span class="card__tag">Coupon System</span>
+            <span class="card__tag">localStorage</span>
+          </div>
+          <span class="card__arrow">↗</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- TIER 2 — ASYNC & APIs             -->
+    <!-- ══════════════════════════════════ -->
+    <div class="tier">
+      <div class="tier__header">
+        <div class="tier__icon">🌐</div>
+        <div class="tier__meta">
+          <div class="tier__name">Tier 2 — Async & APIs</div>
+          <div class="tier__desc">
+            Fetch API · async/await · real data · performance
+          </div>
+        </div>
+        <div class="tier__count">3 projects</div>
+      </div>
+
+      <div class="projects">
+        <!-- Weather Dashboard -->
+        <div class="card card--coming" style="--card-color: #38bdf8">
+          <div class="card__top">
+            <div class="card__emoji">🌤️</div>
+            <div class="card__status card__status--soon">Coming Soon</div>
+          </div>
+          <div class="card__title">Weather Dashboard</div>
+          <div class="card__desc">
+            Real weather data with async/await, AbortController, debounced
+            search and error handling.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">Fetch API</span>
+            <span class="card__tag">async/await</span>
+            <span class="card__tag">AbortController</span>
+          </div>
+        </div>
+
+        <!-- Movie Explorer -->
+        <div class="card card--coming" style="--card-color: #ff4d6a">
+          <div class="card__top">
+            <div class="card__emoji">🎬</div>
+            <div class="card__status card__status--soon">Coming Soon</div>
+          </div>
+          <div class="card__title">Movie Explorer</div>
+          <div class="card__desc">
+            Browse movies with infinite scroll, debounced search and
+            Intersection Observer.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">Intersection Observer</span>
+            <span class="card__tag">Infinite Scroll</span>
+            <span class="card__tag">Debounce</span>
+          </div>
+        </div>
+
+        <!-- Crypto Dashboard -->
+        <div class="card card--coming" style="--card-color: #f5a623">
+          <div class="card__top">
+            <div class="card__emoji">📈</div>
+            <div class="card__status card__status--soon">Coming Soon</div>
+          </div>
+          <div class="card__title">Crypto Dashboard</div>
+          <div class="card__desc">
+            Live crypto prices with Promise.all, Web Workers and real-time
+            auto-refresh.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">Promise.all</span>
+            <span class="card__tag">Web Workers</span>
+            <span class="card__tag">Real-time</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- TIER 3 — ADVANCED PATTERNS        -->
+    <!-- ══════════════════════════════════ -->
+    <div class="tier">
+      <div class="tier__header">
+        <div class="tier__icon">⚙️</div>
+        <div class="tier__meta">
+          <div class="tier__name">Tier 3 — Advanced Patterns</div>
+          <div class="tier__desc">
+            Complex state · real-time · large architecture
+          </div>
+        </div>
+        <div class="tier__count">3 projects</div>
+      </div>
+
+      <div class="projects">
+        <div class="card card--coming">
+          <div class="card__top">
+            <div class="card__emoji">💬</div>
+            <div class="card__status card__status--soon">Coming Soon</div>
+          </div>
+          <div class="card__title">Chat UI</div>
+          <div class="card__desc">
+            Real-time chat simulation with Observer and EventEmitter.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">Observer</span>
+            <span class="card__tag">EventEmitter</span>
+          </div>
+        </div>
+
+        <div class="card card--coming">
+          <div class="card__top">
+            <div class="card__emoji">📋</div>
+            <div class="card__status card__status--soon">Coming Soon</div>
+          </div>
+          <div class="card__title">Trello Clone</div>
+          <div class="card__desc">
+            Kanban board with drag and drop and complex state.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">Drag & Drop</span>
+            <span class="card__tag">State</span>
+          </div>
+        </div>
+
+        <div class="card card--coming">
+          <div class="card__top">
+            <div class="card__emoji">🖥️</div>
+            <div class="card__status card__status--soon">Coming Soon</div>
+          </div>
+          <div class="card__title">Admin Dashboard</div>
+          <div class="card__desc">
+            Large app architecture with multiple APIs and charts.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">Architecture</span>
+            <span class="card__tag">Charts</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- TIER 4 — BOSS LEVEL               -->
+    <!-- ══════════════════════════════════ -->
+    <div class="tier">
+      <div class="tier__header">
+        <div class="tier__icon">🏆</div>
+        <div class="tier__meta">
+          <div class="tier__name">Tier 4 — Boss Level</div>
+          <div class="tier__desc">
+            AI integration · business software · build your own React
+          </div>
+        </div>
+        <div class="tier__count">4 projects</div>
+      </div>
+
+      <div class="projects">
+        <div class="card card--coming">
+          <div class="card__top">
+            <div class="card__emoji">🤖</div>
+            <div class="card__status card__status--soon">Coming Soon</div>
+          </div>
+          <div class="card__title">AI Notes</div>
+          <div class="card__desc">
+            AI-powered note taking with streaming responses.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">AI API</span>
+            <span class="card__tag">Streaming</span>
+          </div>
+        </div>
+
+        <div class="card card--coming">
+          <div class="card__top">
+            <div class="card__emoji">📦</div>
+            <div class="card__status card__status--soon">Coming Soon</div>
+          </div>
+          <div class="card__title">Inventory System</div>
+          <div class="card__desc">
+            Real business software with complex OOP and CSV export.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">OOP</span>
+            <span class="card__tag">CSV Export</span>
+          </div>
+        </div>
+
+        <div class="card card--coming">
+          <div class="card__top">
+            <div class="card__emoji">🔧</div>
+            <div class="card__status card__status--soon">Coming Soon</div>
+          </div>
+          <div class="card__title">Tiny Framework</div>
+          <div class="card__desc">
+            Build your own mini frontend framework from scratch.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">Virtual DOM</span>
+            <span class="card__tag">Components</span>
+          </div>
+        </div>
+
+        <div class="card card--coming">
+          <div class="card__top">
+            <div class="card__emoji">⚛️</div>
+            <div class="card__status card__status--soon">Coming Soon</div>
+          </div>
+          <div class="card__title">Mini React</div>
+          <div class="card__desc">
+            Build React from scratch — hooks, state, reconciler.
+          </div>
+          <div class="card__tags">
+            <span class="card__tag">useState</span>
+            <span class="card__tag">useEffect</span>
+            <span class="card__tag">Reconciler</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <div class="footer">
+      Built by
+      <a href="https://github.com/sagar-8848" target="_blank">Sagar Suwal</a>
+      · BSc IT · Himalayan College of Management, Nepal · Path: Vanilla JS →
+      React → MERN → GenAI
     </div>
   </body>
 </html>

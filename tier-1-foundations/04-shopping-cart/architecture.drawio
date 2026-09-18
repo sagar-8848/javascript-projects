@@ -1,0 +1,141 @@
+<mxfile host="65bd71144e">
+    <diagram id="-iS-_I3DtJtiE-Gtn8Ht" name="Page-1">
+        <mxGraphModel dx="1511" dy="1090" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="1">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="USER" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="100" y="250" width="60" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="button clicked!" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="200" y="252.5" width="50" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="2" target="3" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="330" y="360" as="sourcePoint"/>
+                        <mxPoint x="380" y="310" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;Event Listener Fired!&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="290" y="250" width="60" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="250" y="269.72" as="sourcePoint"/>
+                        <mxPoint x="290" y="269.72" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="7" value="business logic" style="whiteSpace=wrap;html=1;aspect=fixed;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="380" y="245" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="350" y="269.72" as="sourcePoint"/>
+                        <mxPoint x="380" y="270" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="9" value="" style="endArrow=classic;html=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="215" y="252.5" as="sourcePoint"/>
+                        <mxPoint x="215" y="220" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="11" value="user clicks add to cart button" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="180" y="170" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="check if:&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;- the product already exists&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;- stock available or not&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;- can we add it?&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="150" width="150" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="" style="endArrow=classic;html=1;entryX=0.467;entryY=1.667;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.412;exitY=-0.04;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="7" target="12" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="350" y="330" as="sourcePoint"/>
+                        <mxPoint x="380" y="300" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="14" value="state changes" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="460" y="250" width="50" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="" style="endArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="14" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="430" y="269.67" as="sourcePoint"/>
+                        <mxPoint x="460" y="269.67" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="17" value="source of the truth of our applicaton" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="455" y="325" width="85" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="14" target="17" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="610" y="370" as="sourcePoint"/>
+                        <mxPoint x="660" y="320" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="20" value="Event Emiiter" style="whiteSpace=wrap;html=1;aspect=fixed;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="570" y="245" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="it announces cart is changed!" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="540" y="150" width="85" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="" style="endArrow=classic;html=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="577.5" y="245" as="sourcePoint"/>
+                        <mxPoint x="578" y="190" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="25" value="" style="endArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="20" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="520" y="270" as="sourcePoint"/>
+                        <mxPoint x="570" y="220" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="26" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;Observer&amp;nbsp;&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;hears it&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="680" y="250" width="60" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="" style="endArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="26" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="610" y="270" as="sourcePoint"/>
+                        <mxPoint x="660" y="220" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="29" value="different parts of our application registered themselves as listeners.&lt;div&gt;departments waiting for the announcement.&lt;font color=&quot;#000000&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="590" y="370" width="260" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="26" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="710" y="300" as="sourcePoint"/>
+                        <mxPoint x="730" y="357.5" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="31" value="&lt;span style=&quot;font-size: 10px;&quot;&gt;render&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="790" y="250" width="60" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="&lt;span style=&quot;font-size: 10px;&quot;&gt;update summary&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1" parent="1" vertex="1">
+                    <mxGeometry x="900" y="250" width="60" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="33" value="" style="endArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="31" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="740" y="270" as="sourcePoint"/>
+                        <mxPoint x="790" y="220" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="34" value="" style="endArrow=classic;html=1;" parent="1" target="32" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="850" y="270" as="sourcePoint"/>
+                        <mxPoint x="900" y="220" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="36" value="                    USER&#xa;                      │&#xa;                      ↓&#xa;              clicks Add to Cart&#xa;                      │&#xa;                      ↓&#xa;               EVENT LISTENER&#xa;                      │&#xa;                      ↓&#xa;               BUSINESS LOGIC&#xa;                      │&#xa;             ┌────────┴────────┐&#xa;             ↓                 ↓&#xa;       Duplicate?          Enough stock?&#xa;             │                 │&#xa;            NO ✅             YES ✅&#xa;             └────────┬────────┘&#xa;                      ↓&#xa;                  CHANGE STATE&#xa;                      │&#xa;                      ↓&#xa;               &quot;cartChanged!&quot;&#xa;                      │&#xa;                  EMITTER&#xa;                      │&#xa;       ┌──────────────┼──────────────┐&#xa;       ↓              ↓              ↓&#xa;  renderCart    updateSummary    updateBadge&#xa;       │              │              │&#xa;       └──────────────┼──────────────┘&#xa;                      ↓&#xa;                     DOM&#xa;                      │&#xa;                      ↓&#xa;              USER SEES NEW CART&#xa;                      │&#xa;                      ↓&#xa;                saveToStorage" style="text;whiteSpace=wrap;" vertex="1" parent="1">
+                    <mxGeometry x="110" y="420" width="330" height="570" as="geometry"/>
+                </mxCell>
+                <mxCell id="37" value="HTML&#xa;│&#xa;├── Header&#xa;│   └── #cart-badge&#xa;│&#xa;├── Products&#xa;│   ├── #product-count&#xa;│   └── #products-container&#xa;│&#xa;├── Cart&#xa;│   ├── #cart-count&#xa;│   ├── #cart-empty&#xa;│   ├── #cart-container&#xa;│   ├── #coupon-section&#xa;│   ├── #coupon-input&#xa;│   ├── #coupon-btn&#xa;│   ├── #coupon-msg&#xa;│   ├── #cart-summary&#xa;│   ├── #summary-subtotal&#xa;│   ├── #discount-row&#xa;│   ├── #discount-label&#xa;│   ├── #summary-discount&#xa;│   ├── #summary-total&#xa;│   ├── #checkout-btn&#xa;│   └── #clear-btn&#xa;│&#xa;├── Toast&#xa;│   ├── #toast&#xa;│   └── #toast-msg&#xa;│&#xa;└── Receipt Modal&#xa;    ├── #modal-overlay&#xa;    ├── #modal-items&#xa;    ├── #modal-total&#xa;    └── #modal-close" style="text;whiteSpace=wrap;" vertex="1" parent="1">
+                    <mxGeometry x="760" y="580" width="190" height="530" as="geometry"/>
+                </mxCell>
+                <UserObject label="app.js&#xa;│&#xa;├── 1. DATA&#xa;│     ├── products&#xa;│     └── coupons&#xa;│&#xa;├── 2. ERROR CLASSES&#xa;│     ├── DuplicateCartError&#xa;│     ├── OutOfStockError&#xa;│     └── InvalidCouponError&#xa;│&#xa;├── 3. DOMAIN CLASSES&#xa;│     ├── Product&#xa;│     ├── CartItem&#xa;│     └── Cart&#xa;│&#xa;├── 4. STATE&#xa;│&#xa;├── 5. EVENT EMITTER&#xa;│&#xa;├── 6. STORAGE&#xa;│&#xa;├── 7. RENDERING&#xa;│     ├── renderProducts()&#xa;│     ├── renderCart()&#xa;│     ├── updateSummary()&#xa;│     └── updateBadge()&#xa;│&#xa;├── 8. EVENT LISTENERS&#xa;│&#xa;└── 9. INIT" link="app.js&#xa;│&#xa;├── 1. DATA&#xa;│     ├── products&#xa;│     └── coupons&#xa;│&#xa;├── 2. ERROR CLASSES&#xa;│     ├── DuplicateCartError&#xa;│     ├── OutOfStockError&#xa;│     └── InvalidCouponError&#xa;│&#xa;├── 3. DOMAIN CLASSES&#xa;│     ├── Product&#xa;│     ├── CartItem&#xa;│     └── Cart&#xa;│&#xa;├── 4. STATE&#xa;│&#xa;├── 5. EVENT EMITTER&#xa;│&#xa;├── 6. STORAGE&#xa;│&#xa;├── 7. RENDERING&#xa;│     ├── renderProducts()&#xa;│     ├── renderCart()&#xa;│     ├── updateSummary()&#xa;│     └── updateBadge()&#xa;│&#xa;├── 8. EVENT LISTENERS&#xa;│&#xa;└── 9. INIT" id="38">
+                    <mxCell style="text;whiteSpace=wrap;" vertex="1" parent="1">
+                        <mxGeometry x="455" y="510" width="190" height="470" as="geometry"/>
+                    </mxCell>
+                </UserObject>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
