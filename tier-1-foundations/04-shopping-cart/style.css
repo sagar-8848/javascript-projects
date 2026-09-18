@@ -34,6 +34,31 @@ body {
   min-height: 100vh;
 }
 
+/* FOR THE MARQUEE TAG */
+/* ── MARQUEE BANNER ── */
+.marquee-container {
+  width: 100%;
+  overflow: hidden;
+  background: var(--accent);
+  color: white;
+  padding: 8px 0;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.marquee-content {
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee 25s linear infinite;
+}
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
 /* ── HEADER ── */
 .header {
   background: var(--surface);
@@ -431,16 +456,17 @@ body {
 /* ── TOAST ── */
 .toast {
   position: fixed;
-  bottom: 28px;
+  bottom: 32px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  background: rgba(20, 20, 30, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
   border-radius: 99px;
   color: var(--text);
   font-size: 13px;
   font-weight: 600;
-  padding: 10px 20px;
+  padding: 12px 24px;
   box-shadow: var(--shadow);
   z-index: 999;
   white-space: nowrap;
@@ -740,5 +766,11 @@ body {
   font-weight: 700;
   font-size: 15px;
   letter-spacing: -0.5px;
-  display: 
+  display: inline-block;
+}
+
+.product-card .btn--add:disabled {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  cursor: not-allowed;
 }

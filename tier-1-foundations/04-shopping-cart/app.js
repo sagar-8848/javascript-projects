@@ -33,7 +33,9 @@ const modalOverlay = document.getElementById("modal-overlay");
 const modalItems = document.getElementById("modal-items");
 const modalTotal = document.getElementById("modal-total");
 const modalClose = document.getElementById("modal-close");
-
+const marqueeText = document.getElementById("marquee-text")
+// * available products in the array 
+let products = [];
 
 
 // * Product class
@@ -47,18 +49,17 @@ class Product {
   }
 }
 
-const p1 = new Product("Nike Air Max", 8500, 5, "👟");
-const p2 = new Product("Plain T-Shirt", 1200, 10, "👕");
-const p3 = new Product("Leather Bag", 4500, 2, "👜");
-const p4 = new Product("Sunglasses", 2200, 8, "🕶️");
-const p5 = new Product("Running Shoes", 6500, 3, "🏃");
-const p6 = new Product("Hoodie", 3500, 6, "🧥");
-const p7 = new Product("Puma Running Shoe", 3300, 3, "👟");
-const p8 = new Product("LV BAG", 1000, 10, "👜");
-const p9 = new Product("Gucci Bag", 3500, 20, "👝");
-const p10 = new Product("Caliber T-shirt", 3500, 25, "👚");
+const p1 = new Product("Nike Air Max", 8500, 100, "👟");
+const p2 = new Product("Plain T-Shirt", 1200, 500, "👕");
+const p3 = new Product("Leather Bag", 4500, 300, "👜");
+const p4 = new Product("Sunglasses", 2200, 600, "🕶️");
+const p5 = new Product("Running Shoes", 6500, 546, "🏃");
+const p6 = new Product("Hoodie", 3500, 685, "🧥");
+const p7 = new Product("Puma Running Shoe", 3300, 356, "👟");
+const p8 = new Product("LV BAG", 1000, 1000, "👜");
+const p9 = new Product("Gucci Bag", 3500, 420, "👝");
+const p10 = new Product("Caliber T-shirt", 3500, 245, "👚");
 
-const products = [];
 
 products.push(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
 
@@ -85,7 +86,10 @@ class Cart {
 
   addToCart(addedProduct, quantity) {
     // * duplication check 
-    const isDuplicate = this.items.some(curProd => curProd.product === addedProduct);
+    if (addedProduct.stock === 0) {
+      throw new OutOfStockError("OOPS! Out Of Stock!");
+    }
+    const isDuplicate = this.items.some(curProd => curProd.product.id === addedProduct.id);
     if (!isDuplicate) {
       this.items.push(new CartItem(addedProduct, quantity))
       this.tracker.notify();
@@ -261,14 +265,31 @@ class Coupon {
   }
 }
 
-const c1 = new Coupon("SAVE10", 10, '2026-09-17');
+const c1 = new Coupon("SAVE10", 10, '2026-09-20');
 const c2 = new Coupon("SAVE50", 50, '2020-09-14');
+const c3 = new Coupon("SAVE90", 90, '2027-10-10');
+const c4 = new Coupon("SAVE60", 60, '2027-10-10');
 
-const availableCoupons = [c1, c2]
+const availableCoupons = [c1, c2, c3, c4]
+
+// * TO SHOW THE DISCOUNT ON THE MARQEE TAG
+
+function renderMarqee() {
+  let marqueeMsg = "";
+
+  availableCoupons.forEach((curCoupon) => {
+
+    if (curCoupon.isValid()) {
+      marqueeMsg += `🔥 Use ${curCoupon.couponCode} for ${curCoupon.disPercentage}% off!   `;
+    }
+  })
+
+
+  marqueeText.textContent = marqueeMsg;
+}
 
 // * function updateCart (what ever is in the state.cart, just display that in the ui)
 
-updateCart(state.cart.items)
 
 // * update cart 
 function updateCart() {
@@ -333,10 +354,19 @@ function updateCart() {
       increaseBtn.textContent = "+";
       // ! increase button functionality
 
+
       increaseBtn.addEventListener("click", () => {
-        const productId = curCartItem.product.id;
-        state.cart.increaseQuantity(productId)
+        try {
+          const productId = curCartItem.product.id;
+          state.cart.increaseQuantity(productId);
+
+        }
+        catch (err) {
+          showToast(err.message, "error")
+        }
       })
+
+
 
       // ! delete button
 
@@ -349,6 +379,7 @@ function updateCart() {
       deleteBtn.addEventListener("click", () => {
         const productId = curCartItem.product.id;
         state.cart.removeItem(productId)
+        showToast("removed from cart!", "error")
       })
 
       qtyControls.appendChild(decreaseBtn);
@@ -422,8 +453,21 @@ function renderProducts() {
       addToCartBtn.classList.add("btn")
       addToCartBtn.textContent = "Add To Cart"
 
+      if (curProduct.stock === 0) {
+        addToCartBtn.textContent = "Out Of Stock!"
+        addToCartBtn.disabled = true
+      }
+      else {
+        addToCartBtn.disabled = false;
+        addToCartBtn.textContent = "Add To Cart"
+      }
       addToCartBtn.addEventListener("click", () => {
-        state.cart.addToCart(curProduct, 1)
+        try {
+          state.cart.addToCart(curProduct, 1);
+          showToast("Added to Cart!", "success");
+        } catch (err) {
+          showToast(err.message, "error");
+        }
       })
 
 
@@ -476,17 +520,17 @@ function updateSummary() {
 // * clear cart btn 
 clearBtn.addEventListener("click", () => {
   state.cart.clearCart()
-  alert("you are clearing cart!")
+  showToast("Cart cleared!", "error")
 
   // * after clearing the button, the coupon must also be cleared from the state so, 
   state.curAppliedCoupon = null;
 
-  couponInput.textContent = ""
+  couponInput.value = ""
   couponSection.classList.add("hidden");
   updateSummary()
-
 })
 
+// * save cart to local storage
 function saveCart() {
   const cartJSON = JSON.stringify(state.cart.items)
   localStorage.setItem("cartItems", cartJSON)
@@ -506,27 +550,26 @@ couponBtn.addEventListener("click", () => {
 
   const foundCoupon = availableCoupons.find(curCoupon => curCoupon.couponCode.toLowerCase() === userCoupon);
   if (!foundCoupon) {
-    console.log("Invalid Coupon Code")
+    showToast("Invalid Coupon Code", "error")
     return
   }
   if (foundCoupon) {
     try {
       foundCoupon.calculateDiscount(state.cart.getSubTotal())
       state.curAppliedCoupon = foundCoupon;
-      console.log("discount applied success!")
+      // console.log("discount applied success!")
       couponMsg.classList.remove("hidden")
       couponMsg.textContent = `${foundCoupon.disPercentage} % Discount Applied!`
       couponMsg.classList.add("coupon-msg--success")
       updateSummary()
 
     } catch (err) {
-      console.log(err.message)
+      showToast(err.message, "error")
     }
   }
 })
 
 checkoutBtn.addEventListener("click", () => {
-  // console.log("clicked on the checkout btn")
   modalOverlay.classList.remove("hidden")
   modalItems.innerHTML = "";
   state.cart.items.forEach((curItem) => {
@@ -537,6 +580,7 @@ checkoutBtn.addEventListener("click", () => {
     const stockAfterPurchase = stockBeforePurcahase - purchasedStcok;
 
     curItem.product.stock = stockAfterPurchase;
+    saveProduct()
 
 
     const modalItem = document.createElement("div");
@@ -571,8 +615,16 @@ checkoutBtn.addEventListener("click", () => {
   }
 
   modalTotal.textContent = `Rs. ${finalTotal}`;
+  showToast("Order Placed Successfully!", "success")
+  renderProducts()
 })
 
+// * save product
+
+function saveProduct() {
+  const stringifiedProducts = JSON.stringify(products);
+  localStorage.setItem("allProducts", stringifiedProducts)
+}
 
 // * close modal button
 
@@ -588,17 +640,57 @@ modalClose.addEventListener("click", () => {
 
 // * load from local storage
 function loadFromStorage() {
+  // ? Load Products FIRST!
+  const savedProduct = localStorage.getItem("allProducts");
+  if (savedProduct) {
+    products = JSON.parse(savedProduct);
+  }
+
+  // ? Load the Cart SECOND
   const savedCart = localStorage.getItem("cartItems");
   if (savedCart) {
     const parsedItems = JSON.parse(savedCart);
-    state.cart.items = parsedItems
+
+    // ? DO NOT DO: state.cart.items = parsedItems
+    // ? INSTEAD: Loop through parsedItems and re-link them!
+    parsedItems.forEach(plainItem => {
+      // ? Find the LIVE product in the products array using the ID
+      const liveProduct = products.find(p => p.id === plainItem.product.id);
+
+      // ? If we found it, create a NEW CartItem with the live product!
+      if (liveProduct) {
+        state.cart.items.push(new CartItem(liveProduct, plainItem.quantity));
+      }
+    });
   }
+
+  // 4. Now render the UI
   renderProducts();
-  updateCart()
+  updateCart();
 }
 
+// * showToast function 
+
+let toastTimer;
+
+function showToast(msg, type = "success") {
+  clearTimeout(toastTimer);
+
+  // 1. Set text and type
+  toastMsg.textContent = msg;
+  toast.className = `toast ${type}`; // Sets "toast success" etc.
+
+  // 2. Show it (removes hidden, which uses display: none !important)
+  toast.classList.remove("hidden");
+
+  // 3. Hide it after 2 seconds
+  toastTimer = setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 2000);
+}
 
 function init() {
+  renderMarqee()
   loadFromStorage()
 }
 
