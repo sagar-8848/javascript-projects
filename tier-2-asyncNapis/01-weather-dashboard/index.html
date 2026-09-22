@@ -3,71 +3,111 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Weather Dashboard 🌤️</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>Weather Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <!-- ── HEADER ── -->
+    <header class="header">
+      <div class="header__inner">
+        <div class="header__brand">
+          <h1 class="header__logo">🌤️ WeatherIQ</h1>
+          <p class="header__sub">Real-time weather anywhere</p>
+        </div>
+      </div>
+    </header>
+
     <main class="main">
-      <header class="header">
-        <h1>Weather Dashboard 🌤️</h1>
-      </header>
+      <!-- ── SEARCH ── -->
+      <section class="search-section">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="search-input"
+            class="search-input"
+            placeholder="Search city... e.g. Kathmandu"
+            autocomplete="off"
+          />
+          <button id="search-btn" class="search-btn">Search</button>
+        </div>
+        <p id="error-msg" class="error-msg hidden"></p>
+      </section>
 
-      <!-- Search Section -->
-      <div class="search-section">
-        <input
-          type="text"
-          id="search-input"
-          class="search-input"
-          placeholder="Search city (e.g., Kathmandu)..."
-          autocomplete="off"
-        />
-        <button id="search-btn" class="btn btn--primary">Search</button>
+      <!-- ── LOADING ── -->
+      <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <p class="loading__text">Fetching weather data...</p>
       </div>
 
-      <!-- Message Area (Loading / Errors) -->
-      <div id="message-area" class="message-area hidden"></div>
-
-      <!-- Current Weather Card -->
-      <div id="current-weather" class="weather-card hidden">
-        <div class="weather-card__top">
-          <div>
-            <h2 id="city-name" class="city-name">City</h2>
-            <p id="weather-desc" class="weather-desc">Description</p>
-          </div>
-          <div id="weather-emoji" class="weather-emoji">☀️</div>
-        </div>
-
-        <div class="weather-card__bottom">
-          <div class="temp-display">
-            <span id="temp-value" class="temp-value">0</span>
-            <span class="temp-unit">°C</span>
-          </div>
-          <div class="weather-details">
-            <div class="detail-item">
-              <span class="detail-label">Feels Like</span>
-              <span id="feels-like" class="detail-value">0°C</span>
+      <!-- ── WEATHER CARD (hidden until data loads) ── -->
+      <section id="weather-section" class="weather-section hidden">
+        <!-- CURRENT WEATHER -->
+        <div class="current-card">
+          <div class="current-card__top">
+            <div class="current-card__location">
+              <h2 id="city-name" class="city-name">--</h2>
+              <p id="country" class="country">--</p>
             </div>
-            <div class="detail-item">
-              <span class="detail-label">Humidity</span>
-              <span id="humidity" class="detail-value">0%</span>
+            <div class="current-card__date" id="current-date">--</div>
+          </div>
+
+          <div class="current-card__main">
+            <div class="current-card__temp-wrap">
+              <span id="weather-icon" class="weather-icon">🌤️</span>
+              <span id="temperature" class="temperature">--°C</span>
             </div>
-            <div class="detail-item">
-              <span class="detail-label">Wind</span>
-              <span id="wind-speed" class="detail-value">0 km/h</span>
+            <div class="current-card__desc-wrap">
+              <p id="weather-desc" class="weather-desc">--</p>
+              <p id="feels-like" class="feels-like">Feels like --°C</p>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- 5-Day Forecast -->
-      <div id="forecast-section" class="forecast-section hidden">
-        <h3 class="forecast-title">5-Day Forecast</h3>
-        <div id="forecast-container" class="forecast-container">
-          <!-- Forecast cards will be injected by JS -->
+          <div class="current-card__stats">
+            <div class="stat">
+              <span class="stat__icon">💧</span>
+              <span id="humidity" class="stat__value">--%</span>
+              <span class="stat__label">Humidity</span>
+            </div>
+            <div class="stat">
+              <span class="stat__icon">💨</span>
+              <span id="wind-speed" class="stat__value">-- km/h</span>
+              <span class="stat__label">Wind</span>
+            </div>
+            <div class="stat">
+              <span class="stat__icon">👁️</span>
+              <span id="visibility" class="stat__value">-- km</span>
+              <span class="stat__label">Visibility</span>
+            </div>
+            <div class="stat">
+              <span class="stat__icon">🌡️</span>
+              <span id="pressure" class="stat__value">-- hPa</span>
+              <span class="stat__label">Pressure</span>
+            </div>
+          </div>
         </div>
+
+        <!-- 5 DAY FORECAST -->
+        <div class="forecast-section">
+          <h3 class="forecast-section__title">5-Day Forecast</h3>
+          <div id="forecast-container" class="forecast-container"></div>
+        </div>
+      </section>
+
+      <!-- ── EMPTY STATE ── -->
+      <div id="empty-state" class="empty-state">
+        <p class="empty-state__icon">🌍</p>
+        <p class="empty-state__text">Search for a city</p>
+        <p class="empty-state__sub">Type a city name above to get started</p>
       </div>
     </main>
 
+    <!-- TOAST -->
+    <div id="toast" class="toast hidden">
+      <span id="toast-msg"></span>
+    </div>
+
+    <script src="config.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
