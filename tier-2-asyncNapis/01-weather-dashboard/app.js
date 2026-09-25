@@ -35,44 +35,44 @@ const toastMsg = document.getElementById("toast-msg");
 
 const API_BASE = `https://api.openweathermap.org/data/2.5/`
 
+// * emoji for weather for different conditions 
+
+const weatherEmojis = {
+  Clear: "☀️",
+  Clouds: "☁️",
+  Rain: "🌧️",
+  Thunderstorm: "⛈️",
+  Snow: "❄️",
+  Mist: "🌫️",
+  Drizzle: "🌦️"
+};
+
 
 // ! API LAYER
 
 // ? to get the weather data
 
 async function fetchWeatherData(city) {
-  try {
-    const res = await fetch(`${API_BASE}weather?q=${city}&appid=${API_KEY}&units=metric`)
+  const res = await fetch(`${API_BASE}weather?q=${city}&appid=${API_KEY}&units=metric`)
 
-    // ? check if the network is ok 
+  // ? check if the network is ok 
 
-    if (!res.ok) throw new Error("something went wrong, try again!");
-    const data = await res.json();
-    return data;
-  }
-  catch (err) {
-    console.log(err.message)
-  }
+  if (!res.ok) throw new Error("city not found!");
+  const data = await res.json();
+  return data;
 }
-
-fetchWeatherData("kathmandu");
-
 
 
 // ? to get the weather forecaset for many days
 
 async function fetchWeatherForecast(city) {
-  try {
-    const res = await fetch(`${API_BASE}forecast?q=${city}&appid=${API_KEY}&units=metric`)
 
-    if (!res.ok) throw new Error("something went wrong, please try again in a few minutes!");
+  const res = await fetch(`${API_BASE}forecast?q=${city}&appid=${API_KEY}&units=metric`)
 
-    const data = await res.json()
-    return data;
-  }
-  catch (err) {
-    console.log(err.message)
-  }
+  if (!res.ok) throw new Error("city not found!");
+
+  const data = await res.json()
+  return data;
 }
 
 
@@ -81,13 +81,30 @@ async function fetchWeatherForecast(city) {
 
 async function getCityWeather(city) {
   try {
+    showLoading()
     const [curWeather, forecastData] = await Promise.all([fetchWeatherData(city), fetchWeatherForecast(city)]);
     renderWeatherData(curWeather, forecastData)
+    forecastWeather(forecastData)
+
+    // ! set the city value to the local storage
+
+    localStorage.setItem("lastCity", city)
+    hideLoading()
+
   }
   catch (err) {
-    console.log(err.message)
+    showError(err.message)
   }
 }
+
+// * managing the user query data
+
+searchBtn.addEventListener("click", () => {
+  const searchedValue = searchInput.value.trim();
+
+  if (searchedValue === "") return;
+  getCityWeather(searchedValue)
+})
 
 
 // * to render the weather data
@@ -99,6 +116,8 @@ function renderWeatherData(weatherData, forecastData) {
 
   cityName.textContent = weatherData.name;
   temperature.textContent = Math.round(weatherData.main.temp) + "°C";
+
+  weatherIcon.textContent = `${weatherEmojis[weatherData.weather[0].main] || "🌤️"} `
 
   const dateObj = new Date(weatherData.dt * 1000); // Convert seconds to ms
   const dateString = dateObj.toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric' });
@@ -112,4 +131,70 @@ function renderWeatherData(weatherData, forecastData) {
   pressure.textContent = weatherData.main.pressure + " hPa"
 }
 
-fetchWeatherForecast("kathmandu")
+// * to render the forecast data
+
+function forecastWeather(forecastData) {
+  forecastContainer.innerHTML = "";
+
+  forecastData.list.forEach((curDay) => {
+    if (curDay.dt_txt.includes("12:00:00")) {
+      const card = document.createElement("div");
+      card.classList.add("forecast-card");
+
+      const dayName = new Date(curDay.dt_txt).toLocaleDateString("en-US", { weekday: 'short' });
+
+      const day = document.createElement("span");
+      day.textContent = dayName;
+
+      const emoji = document.createElement("span");
+      emoji.textContent = weatherEmojis[curDay.weather[0].main] || "🌤️";
+
+
+      const temp = document.createElement("span");
+      temp.textContent = Math.round(curDay.main.temp) + "°C";
+
+
+      card.appendChild(day);
+      card.appendChild(emoji);
+      card.appendChild(temp);
+
+      forecastContainer.append(card)
+    }
+
+  })
+}
+
+
+function showError(message) {
+  errorMsg.textContent = message;
+  errorMsg.classList.remove("hidden")
+  weatherSection.classList.add("hidden")
+
+}
+
+
+// * to show the loading 
+
+function showLoading() {
+  loading.classList.remove("hidden")
+  weatherSection.classList.add("hidden")
+  emptyState.classList.add("hidden")
+  errorMsg.classList.add("hidden")
+
+}
+
+function hideLoading() {
+  loading.classList.add("hidden")
+  weatherSection.classList.remove("hidden")
+}
+
+function init() {
+  const lastCity = localStorage.getItem("lastCity");
+  if (lastCity) {
+    getCityWeather(lastCity)
+  }
+
+
+}
+
+init()
