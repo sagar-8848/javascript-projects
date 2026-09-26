@@ -37,7 +37,7 @@ Bonus   — Solidify        → lock in every concept
 ### Tier 2 — Async & APIs
 | # | Project | Main Concept | Live | Status |
 |---|---------|--------------|------|--------|
-| 05 | [Weather Dashboard](./tier-2-async-apis/05-weather-dashboard) | Async programming | [Demo](https://sagar-8848.github.io/javascript-projects/tier-2-asyncNapis/01-weather-dashboard/index.html) | ✅ |
+| 05 | [Weather Dashboard](./tier-2-asyncNapis/01-weather-dashboard/) | Async programming | [Demo](https://sagar-8848.github.io/javascript-projects/tier-2-asyncNapis/01-weather-dashboard/index.html) | ✅ |
 | 06 | [Movie Explorer](./tier-2-async-apis/06-movie-explorer) | Performance | [Demo](#) | ⬜ |
 | 07 | [Crypto Dashboard](./tier-2-async-apis/07-crypto-dashboard) | Advanced UI | [Demo](#) | ⬜ |
 
