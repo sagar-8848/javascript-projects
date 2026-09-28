@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MovieExplorer</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- ── HEADER ── -->
+    <header class="header">
+      <div class="header__inner">
+        <h1 class="header__logo">🎬 MovieExplorer</h1>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="search-input"
+            class="search-input"
+            placeholder="Search movies..."
+            autocomplete="off"
+          />
+          <button id="clear-btn" class="clear-btn hidden">✕</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- ── GENRE TABS ── -->
+      <section class="genre-section">
+        <div id="genre-tabs" class="genre-tabs">
+          <button class="genre-tab active" data-id="0">🎬 All</button>
+          <!-- more tabs injected by JS -->
+        </div>
+      </section>
+
+      <!-- ── SECTION TITLE ── -->
+      <div class="section-header">
+        <h2 id="section-title" class="section-title">🔥 Trending Now</h2>
+        <span id="result-count" class="result-count hidden"></span>
+      </div>
+
+      <!-- ── MOVIES GRID ── -->
+      <div id="movies-grid" class="movies-grid"></div>
+
+      <!-- ── LOADING SPINNER (bottom) ── -->
+      <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <p class="loading__text">Loading movies...</p>
+      </div>
+
+      <!-- ── EMPTY STATE ── -->
+      <div id="empty-state" class="empty-state hidden">
+        <p class="empty-state__icon">🎭</p>
+        <p class="empty-state__text">No movies found</p>
+        <p class="empty-state__sub">Try a different search term</p>
+      </div>
+
+      <!-- ── SENTINEL (Intersection Observer target) ── -->
+      <div id="sentinel" class="sentinel"></div>
+    </main>
+
+    <!-- ── MOVIE DETAIL MODAL ── -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+      <div class="modal">
+        <button id="modal-close" class="modal__close">✕</button>
+
+        <div class="modal__hero">
+          <img id="modal-backdrop" class="modal__backdrop" src="" alt="" />
+          <div class="modal__overlay-grad"></div>
+        </div>
+
+        <div class="modal__body">
+          <div class="modal__top">
+            <img id="modal-poster" class="modal__poster" src="" alt="" />
+            <div class="modal__info">
+              <h2 id="modal-title" class="modal__title">--</h2>
+              <div class="modal__meta">
+                <span id="modal-year" class="modal__badge">--</span>
+                <span id="modal-runtime" class="modal__badge">--</span>
+                <span id="modal-rating" class="modal__badge modal__badge--gold"
+                  >⭐ --</span
+                >
+              </div>
+              <div id="modal-genres" class="modal__genres"></div>
+            </div>
+          </div>
+          <p id="modal-overview" class="modal__overview">--</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TOAST ── -->
+    <div id="toast" class="toast hidden">
+      <span id="toast-msg"></span>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
