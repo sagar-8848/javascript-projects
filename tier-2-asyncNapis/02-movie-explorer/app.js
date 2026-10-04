@@ -57,6 +57,7 @@ const state = {
 }
 
 
+
 // ==========================================
 // * UTILITIES
 // ==========================================
@@ -71,6 +72,10 @@ function debounce(cb, delay) {
     }, delay)
   }
 }
+
+// * Abort Controller
+
+let abortController;
 
 
 let toastTimer;
@@ -88,29 +93,139 @@ function showToast(msg, type = "success") {
 // * API LAYER
 // ==========================================
 
+// ? fetchTrending
+
 async function fetchTrending() {
 
-  const res = await fetch(`${API_BASE}/trending/movie/week?api_key=${apiKey}`);
+  const res = await fetch(`${API_BASE}/trending/movie/week?api_key=${apiKey}&page=${state.page}`);
 
   if (!res.ok) {
     throw new Error("something went wrong, please try again!")
   }
   const data = await res.json();
-  renderMovies(data)
 
   return data;
 }
 
+// ? function fetchSearch
+
+async function fetchSearch(query, page, signal) {
+  const res = await fetch(`${API_BASE}/search/movie?api_key=${apiKey}&query=${query}&page=${page}`, { signal });
+  if (!res.ok) throw new Error("something went wrong!");
+  const data = await res.json();
+  return data;
+}
+
+// ? Event Listener in the Search
+
+searchInput.addEventListener("input", debounce(() => {
+  if (abortController) abortController.abort();
+  abortController = new AbortController()
+  const searchedValue = searchInput.value.trim();
+  if (searchedValue === "") return;
+  state.query = searchedValue;
+  state.page = 1;
+  showSkeletons(12)
+  fetchSearch(searchedValue, state.page, abortController.signal).then((data) => renderMovies(data, false)).catch(err => { if (err.name !== "AbortError") { console.log(err) } })
+}, 500))
 // ==========================================
 // * UI CONTROLLER
 // ==========================================
 
-function renderMovies(movieData) {
-  console.log(movieData)
+function renderMovies(movieData, append = true) {
+  if (!append) {
+    moviesGrid.innerHTML = "";
+  }
+  movieData.results.forEach((movie) => {
+    const movieCard = document.createElement("div");
+    movieCard.classList.add("movie-card");
+
+    const movieBody = document.createElement("div")
+    movieBody.classList.add("movie-card__body")
+
+    const movieImg = document.createElement("img");
+    movieImg.classList.add("movie-card__poster")
+    movieImg.setAttribute("src", `${IMG_BASE}${movie.poster_path}`)
+
+    const movieTitle = document.createElement("h3");
+    movieTitle.classList.add("movie-card__title")
+    movieTitle.textContent = movie.title;
+
+    const releaseDate = document.createElement("p");
+    releaseDate.classList.add("movie-card__year")
+    releaseDate.textContent = movie.release_date ? movie.release_date.slice(0, 4) : "N/A";
+
+
+    movieCard.appendChild(movieImg);
+    movieBody.appendChild(movieTitle);
+    movieBody.appendChild(releaseDate);
+    movieCard.appendChild(movieBody)
+    moviesGrid.append(movieCard)
+
+
+  })
 }
 
+// * show loading effect
 
+function showSkeletons(count) {
+  moviesGrid.innerHTML = "";
+  for (let i = 0; i < count; i++) {
+    const skeletonCard = document.createElement("div");
+    skeletonCard.classList.add("skeleton");
+
+    const poster = document.createElement("div");
+    poster.classList.add("skeleton__poster")
+
+    skeletonCard.appendChild(poster)
+
+    const skl_body = document.createElement("div");
+    skl_body.classList.add("skeleton__body");
+
+    skeletonCard.appendChild(skl_body)
+
+    const skl_line = document.createElement("div");
+    skl_line.classList.add("skeleton__line")
+
+    skl_body.appendChild(skl_line)
+
+    const skl_line_short = document.createElement("div");
+    skl_line_short.classList.add("skeleton__line--short");
+    skl_body.appendChild(skl_line_short)
+
+    moviesGrid.appendChild(skeletonCard)
+
+  }
+}
 
 // ==========================================
 // * EVENT LISTENERS
 // ==========================================
+
+
+
+
+
+
+
+async function init() {
+  const data = await fetchTrending();
+  renderMovies(data, true)
+}
+
+init()
+
+const intersectionObserver = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) {
+    state.page++
+    if (state.query) {
+      fetchSearch(state.query, state.page).then(data => renderMovies(data, true))
+    }
+    else {
+      fetchTrending().then(data => renderMovies(data, true))
+    }
+
+  }
+}, { threshold: 0.1 })
+
+intersectionObserver.observe(sentinel)
