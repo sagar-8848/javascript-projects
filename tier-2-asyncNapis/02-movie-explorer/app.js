@@ -1,5 +1,4 @@
 
-
 // ==========================================
 // *  DOM ELEMENTS CACHE
 // ==========================================
@@ -128,6 +127,17 @@ searchInput.addEventListener("input", debounce(() => {
   showSkeletons(12)
   fetchSearch(searchedValue, state.page, abortController.signal).then((data) => renderMovies(data, false)).catch(err => { if (err.name !== "AbortError") { console.log(err) } })
 }, 500))
+
+
+// ? function fetch movie details
+
+async function fetchMovieDetails(movieId) {
+  const res = await fetch(`${API_BASE}/movie/${movieId}?api_key=${apiKey}`);
+  if (!res.ok) throw new Error("failed to fetch the movie, try again later!")
+  const data = await res.json();
+  return data;
+}
+
 // ==========================================
 // * UI CONTROLLER
 // ==========================================
@@ -139,6 +149,12 @@ function renderMovies(movieData, append = true) {
   movieData.results.forEach((movie) => {
     const movieCard = document.createElement("div");
     movieCard.classList.add("movie-card");
+
+    movieCard.addEventListener("click", () => {
+      fetchMovieDetails(movie.id).then((data) => {
+        showModal(data)
+      })
+    })
 
     const movieBody = document.createElement("div")
     movieBody.classList.add("movie-card__body")
@@ -161,7 +177,6 @@ function renderMovies(movieData, append = true) {
     movieBody.appendChild(releaseDate);
     movieCard.appendChild(movieBody)
     moviesGrid.append(movieCard)
-
 
   })
 }
@@ -198,6 +213,41 @@ function showSkeletons(count) {
   }
 }
 
+// * show modal when click on the specific card
+
+function showModal(movie) {
+  modalTitle.textContent = movie.title;
+  modalOverview.textContent = movie.overview;
+  modalBackdrop.setAttribute("src", IMG_BASE + movie.backdrop_path);
+  modalPoster.setAttribute("src", IMG_BASE + movie.poster_path);
+  modalYear.textContent = movie.release_date ? movie.release_date.slice(0, 4) : "N/A";
+  modalRating.textContent = "⭐ " + movie.vote_average.toFixed(1);
+  modalRuntime.textContent = `${movie.runtime} min`
+  modalGenres.innerHTML = "";
+
+  movie.genres.forEach((curGenre) => {
+    const modalGenre = document.createElement("span");
+    modalGenre.classList.add("modal__genre");
+    modalGenre.textContent = curGenre.name;
+
+    modalGenres.appendChild(modalGenre)
+  })
+  modalOverlay.classList.remove("hidden")
+
+}
+
+// ? to hide the modal 
+
+modalOverlay.addEventListener("click", (e) => {
+  if (e.target === modalOverlay) {
+    hideModal();
+  }
+});
+function hideModal() {
+  modalOverlay.classList.add("hidden");
+}
+
+
 // ==========================================
 // * EVENT LISTENERS
 // ==========================================
@@ -218,11 +268,16 @@ init()
 const intersectionObserver = new IntersectionObserver((entries) => {
   if (entries[0].isIntersecting) {
     state.page++
+    loading.classList.remove("hidden");
     if (state.query) {
       fetchSearch(state.query, state.page).then(data => renderMovies(data, true))
     }
     else {
-      fetchTrending().then(data => renderMovies(data, true))
+      fetchTrending().then(data => {
+        renderMovies(data, true)
+        loading.classList.add("hidden");
+      })
+
     }
 
   }
