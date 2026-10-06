@@ -124,6 +124,12 @@ searchInput.addEventListener("input", debounce(() => {
   if (searchedValue === "") return;
   state.query = searchedValue;
   state.page = 1;
+  state.genre = 0;
+  const allTabs = document.querySelectorAll('.genre-tab');
+  allTabs.forEach((curItem) => {
+    curItem.classList.remove("active")
+  })
+  document.querySelector('[data-id="0"]').classList.add("active");
   showSkeletons(12)
   fetchSearch(searchedValue, state.page, abortController.signal).then((data) => renderMovies(data, false)).catch(err => { if (err.name !== "AbortError") { console.log(err) } })
 }, 500))
@@ -134,6 +140,37 @@ searchInput.addEventListener("input", debounce(() => {
 async function fetchMovieDetails(movieId) {
   const res = await fetch(`${API_BASE}/movie/${movieId}?api_key=${apiKey}`);
   if (!res.ok) throw new Error("failed to fetch the movie, try again later!")
+  const data = await res.json();
+  return data;
+}
+
+// ? function to get the genres
+async function fetchGenres() {
+  const res = await fetch(`${API_BASE}/genre/movie/list?api_key=${apiKey}`);
+  if (!res.ok) throw new Error("Failed to fetch the movie!")
+  const data = await res.json();
+  return data;
+}
+
+
+// ? render the genres
+
+function renderGenres(data) {
+  data.genres.forEach((curGenre) => {
+    const genreBtn = document.createElement("button");
+    genreBtn.classList.add("genre-tab");
+    genreBtn.textContent = curGenre.name;
+    genreBtn.setAttribute("data-id", curGenre.id);
+    genreTabs.appendChild(genreBtn)
+  })
+}
+
+// ? fetch movie by genre filter
+
+async function fetchMovieByGenre(genreId, page) {
+  const res = await fetch(`${API_BASE}/discover/movie?api_key=${apiKey}&with_genres=${genreId}&page=${page}`);
+  if (!res.ok) throw new Error("failed to fetch the movies, please try again after sometimes!");
+
   const data = await res.json();
   return data;
 }
@@ -236,24 +273,53 @@ function showModal(movie) {
 
 }
 
-// ? to hide the modal 
+
+// ==========================================
+// * EVENT LISTENERS
+// ==========================================
+
+// ? to hide the modal when clicked outside the modal 
 
 modalOverlay.addEventListener("click", (e) => {
   if (e.target === modalOverlay) {
     hideModal();
   }
 });
+
+// ? to hide the modal when clicked in the "X" sign in the modal 
+modalClose.addEventListener("click", () => {
+  hideModal()
+});
+
 function hideModal() {
   modalOverlay.classList.add("hidden");
 }
 
+// ? to know which genre was clicked 
+genreTabs.addEventListener("click", (e) => {
+  const clickedElem = e.target;
+  if (clickedElem.classList.contains('genre-tab')) {
+    const genreId = e.target.getAttribute("data-id");
 
-// ==========================================
-// * EVENT LISTENERS
-// ==========================================
+    // ? update the genre and page in the state
+    state.genre = genreId;
+    state.page = 1;
+    state.query = "";
+    searchInput.value = "";
 
 
+    fetchMovieByGenre(state.genre, state.page).then(data => renderMovies(data, false))
 
+    const allTabs = document.querySelectorAll('.genre-tab');
+    allTabs.forEach((curItem) => {
+      curItem.classList.remove("active")
+    })
+
+    clickedElem.classList.add("active");
+
+  }
+
+})
 
 
 
@@ -261,16 +327,25 @@ function hideModal() {
 async function init() {
   const data = await fetchTrending();
   renderMovies(data, true)
+
+  fetchGenres().then(data => renderGenres(data))
 }
 
 init()
 
 const intersectionObserver = new IntersectionObserver((entries) => {
   if (entries[0].isIntersecting) {
+    console.log("Observer fired! Fetching page:", state.page);
     state.page++
     loading.classList.remove("hidden");
     if (state.query) {
       fetchSearch(state.query, state.page).then(data => renderMovies(data, true))
+      loading.classList.add("hidden")
+    }
+
+    else if (state.genre != 0) {
+      fetchMovieByGenre(state.genre, state.page).then(data => renderMovies(data, true))
+      loading.classList.add("hidden")
     }
     else {
       fetchTrending().then(data => {
