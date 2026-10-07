@@ -123,6 +123,7 @@ searchInput.addEventListener("input", debounce(() => {
   const searchedValue = searchInput.value.trim();
   if (searchedValue === "") return;
   state.query = searchedValue;
+  localStorage.setItem("lastSearched", searchedValue)
   state.page = 1;
   state.genre = 0;
   const allTabs = document.querySelectorAll('.genre-tab');
@@ -131,7 +132,7 @@ searchInput.addEventListener("input", debounce(() => {
   })
   document.querySelector('[data-id="0"]').classList.add("active");
   showSkeletons(12)
-  fetchSearch(searchedValue, state.page, abortController.signal).then((data) => renderMovies(data, false)).catch(err => { if (err.name !== "AbortError") { console.log(err) } })
+  fetchSearch(searchedValue, state.page, abortController.signal).then((data) => renderMovies(data, false)).catch(err => { if (err.name !== "AbortError") { showToast(err.message, "error") } })
 }, 500))
 
 
@@ -303,6 +304,7 @@ genreTabs.addEventListener("click", (e) => {
 
     // ? update the genre and page in the state
     state.genre = genreId;
+    localStorage.setItem("lastGenre", genreId);
     state.page = 1;
     state.query = "";
     searchInput.value = "";
@@ -325,10 +327,31 @@ genreTabs.addEventListener("click", (e) => {
 
 
 async function init() {
-  const data = await fetchTrending();
-  renderMovies(data, true)
+  // 1. Render the genre tabs FIRST!
+  const genresData = await fetchGenres();
+  renderGenres(genresData);
 
-  fetchGenres().then(data => renderGenres(data))
+  // 2. THEN check LocalStorage
+  const lastSearched = localStorage.getItem("lastSearch");
+  const lastGenre = localStorage.getItem("lastGenre");
+
+  if (lastSearched) {
+    state.query = lastSearched;
+    searchInput.value = lastSearched;
+    fetchSearch(state.query, state.page, null).then(data => renderMovies(data, true));
+  } else if (lastGenre) {
+    state.genre = lastGenre;
+    fetchMovieByGenre(state.genre, state.page).then(data => renderMovies(data, true));
+
+    // 1. Remove "active" from ALL tabs first!
+    const allTabs = document.querySelectorAll('.genre-tab');
+    allTabs.forEach((tab) => tab.classList.remove("active"));
+    // Now this line won't crash because the tabs exist!
+    document.querySelector('[data-id="' + lastGenre + '"]').classList.add("active");
+  } else {
+    const data = await fetchTrending();
+    renderMovies(data, true);
+  }
 }
 
 init()
@@ -339,13 +362,17 @@ const intersectionObserver = new IntersectionObserver((entries) => {
     state.page++
     loading.classList.remove("hidden");
     if (state.query) {
-      fetchSearch(state.query, state.page).then(data => renderMovies(data, true))
-      loading.classList.add("hidden")
+      fetchSearch(state.query, state.page).then((data) => {
+        renderMovies(data, true)
+        loading.classList.add("hidden")
+      })
     }
 
     else if (state.genre != 0) {
-      fetchMovieByGenre(state.genre, state.page).then(data => renderMovies(data, true))
-      loading.classList.add("hidden")
+      fetchMovieByGenre(state.genre, state.page).then((data) => {
+        renderMovies(data, true)
+        loading.classList.add("hidden")
+      })
     }
     else {
       fetchTrending().then(data => {
