@@ -118,22 +118,52 @@ async function fetchSearch(query, page, signal) {
 // ? Event Listener in the Search
 
 searchInput.addEventListener("input", debounce(() => {
+
   if (abortController) abortController.abort();
   abortController = new AbortController()
   const searchedValue = searchInput.value.trim();
-  if (searchedValue === "") return;
+
+  // 1. NEW LOGIC: If search is empty, go back to Trending!
+  if (searchedValue === "") {
+    state.query = "";
+    state.page = 1;
+    state.genre = 0;
+    localStorage.removeItem("lastSearch"); // Clear saved search
+    sectionTitle.textContent = "🔥 Trending Now"; // Reset title
+
+    // Reset the UI to "All" tab
+    const allTabs = document.querySelectorAll('.genre-tab');
+    allTabs.forEach((tab) => tab.classList.remove("active"));
+    document.querySelector('[data-id="0"]').classList.add("active");
+
+    // Fetch Trending movies
+    showSkeletons(12);
+    fetchTrending().then(data => renderMovies(data, false));
+    return; // Stop here so it doesn't continue to the search code
+  }
+
+  // 2. Normal Search Logic
   state.query = searchedValue;
-  localStorage.setItem("lastSearched", searchedValue)
+  localStorage.setItem("lastSearch", searchedValue)
   state.page = 1;
   state.genre = 0;
+
+  // Update UI
   const allTabs = document.querySelectorAll('.genre-tab');
-  allTabs.forEach((curItem) => {
-    curItem.classList.remove("active")
-  })
+  allTabs.forEach((curItem) => curItem.classList.remove("active"))
   document.querySelector('[data-id="0"]').classList.add("active");
+  sectionTitle.textContent = `🔍 Results for "${searchedValue}"`;
+
   showSkeletons(12)
-  fetchSearch(searchedValue, state.page, abortController.signal).then((data) => renderMovies(data, false)).catch(err => { if (err.name !== "AbortError") { showToast(err.message, "error") } })
+  fetchSearch(searchedValue, state.page, abortController.signal)
+    .then((data) => renderMovies(data, false))
+    .catch(err => {
+      if (err.name !== "AbortError") {
+        showToast(err.message, "error")
+      }
+    })
 }, 500))
+
 
 
 // ? function fetch movie details
@@ -184,6 +214,21 @@ function renderMovies(movieData, append = true) {
   if (!append) {
     moviesGrid.innerHTML = "";
   }
+
+  // 1. CHECK FOR NO MOVIES FOUND!
+  if (movieData.results.length === 0) {
+    emptyState.classList.remove("hidden"); // Show the "No movies found" UI
+    moviesGrid.innerHTML = ""; // Clear the grid
+    showToast("No movies found! Try another search.", "error"); // Pop up the toast!
+    return; // Stop the function so it doesn't try to loop through nothing
+  }
+
+  // 2. If we have movies, hide the empty state just in case
+  emptyState.classList.add("hidden");
+
+  state.totalPages = movieData.total_pages;
+
+  resultCount.textContent = `${movieData.total_results} results`;
   movieData.results.forEach((movie) => {
     const movieCard = document.createElement("div");
     movieCard.classList.add("movie-card");
@@ -197,22 +242,44 @@ function renderMovies(movieData, append = true) {
     const movieBody = document.createElement("div")
     movieBody.classList.add("movie-card__body")
 
-    const movieImg = document.createElement("img");
-    movieImg.classList.add("movie-card__poster")
-    movieImg.setAttribute("src", `${IMG_BASE}${movie.poster_path}`)
+
+    // If the movie HAS a poster, create the image
+    if (movie.poster_path) {
+      const movieImg = document.createElement("img");
+      movieImg.classList.add("movie-card__poster");
+      movieImg.src = `${IMG_BASE}${movie.poster_path}`;
+      movieImg.alt = movie.title; // Good for accessibility!
+      movieCard.appendChild(movieImg);
+    } else {
+      // If NO poster, show the emoji placeholder
+      const placeholder = document.createElement("div");
+      placeholder.classList.add("movie-card__poster--placeholder");
+      placeholder.textContent = "🎬";
+      movieCard.appendChild(placeholder);
+    }
 
     const movieTitle = document.createElement("h3");
     movieTitle.classList.add("movie-card__title")
     movieTitle.textContent = movie.title;
 
-    const releaseDate = document.createElement("p");
-    releaseDate.classList.add("movie-card__year")
-    releaseDate.textContent = movie.release_date ? movie.release_date.slice(0, 4) : "N/A";
+    const meta = document.createElement("div")
+    meta.classList.add("movie-card__meta")
+
+    const year = document.createElement("span")
+    year.classList.add("movie-card__year")
+
+    year.textContent = movie.release_date ? movie.release_date.slice(0, 4) : "N/A";
+    meta.appendChild(year)
+
+    const rating = document.createElement("span")
+    rating.classList.add("movie-card__rating");
+    rating.textContent = "⭐ " + (movie.vote_average?.toFixed(1) ?? "N/A")
+    meta.appendChild(rating)
 
 
-    movieCard.appendChild(movieImg);
+
     movieBody.appendChild(movieTitle);
-    movieBody.appendChild(releaseDate);
+    movieBody.appendChild(meta);
     movieCard.appendChild(movieBody)
     moviesGrid.append(movieCard)
 
@@ -309,8 +376,13 @@ genreTabs.addEventListener("click", (e) => {
     state.query = "";
     searchInput.value = "";
 
-
-    fetchMovieByGenre(state.genre, state.page).then(data => renderMovies(data, false))
+    // If "All" is clicked, fetch Trending! Otherwise, fetch by genre.
+    const fetchFn = genreId === "0"
+      ? fetchTrending()
+      : fetchMovieByGenre(state.genre, state.page)
+    fetchFn
+      .then(data => renderMovies(data, false))
+      .catch(err => showToast(err.message, "error"));
 
     const allTabs = document.querySelectorAll('.genre-tab');
     allTabs.forEach((curItem) => {
@@ -325,32 +397,29 @@ genreTabs.addEventListener("click", (e) => {
 
 
 
-
 async function init() {
+  console.log("Init running!");
+  state.page = 1;
+  state.genre = 0; // Always start on "All" genre
+
   // 1. Render the genre tabs FIRST!
   const genresData = await fetchGenres();
   renderGenres(genresData);
 
-  // 2. THEN check LocalStorage
+  // 2. Check if we have a SAVED SEARCH
   const lastSearched = localStorage.getItem("lastSearch");
-  const lastGenre = localStorage.getItem("lastGenre");
 
   if (lastSearched) {
+    // Restore the search!
     state.query = lastSearched;
     searchInput.value = lastSearched;
-    fetchSearch(state.query, state.page, null).then(data => renderMovies(data, true));
-  } else if (lastGenre) {
-    state.genre = lastGenre;
-    fetchMovieByGenre(state.genre, state.page).then(data => renderMovies(data, true));
-
-    // 1. Remove "active" from ALL tabs first!
-    const allTabs = document.querySelectorAll('.genre-tab');
-    allTabs.forEach((tab) => tab.classList.remove("active"));
-    // Now this line won't crash because the tabs exist!
-    document.querySelector('[data-id="' + lastGenre + '"]').classList.add("active");
+    sectionTitle.textContent = `🔍 Results for "${lastSearched}"`;
+    fetchSearch(state.query, state.page, null).then(data => renderMovies(data, false));
   } else {
+    // If no saved search, load Trending!
+    sectionTitle.textContent = "🔥 Trending Now";
     const data = await fetchTrending();
-    renderMovies(data, true);
+    renderMovies(data, false);
   }
 }
 
@@ -358,31 +427,36 @@ init()
 
 const intersectionObserver = new IntersectionObserver((entries) => {
   if (entries[0].isIntersecting) {
-    console.log("Observer fired! Fetching page:", state.page);
-    state.page++
+    // 1. GUARD: If already fetching, stop! Don't fetch again.
+    if (state.isLoading) return;
+
+    // 2. GUARD: If we hit the last page, stop! No more pages.
+    if (state.page >= state.totalPages) return;
+
+    // 3. Lock the door and increment the page
+    state.isLoading = true;
+    state.page++;
     loading.classList.remove("hidden");
-    if (state.query) {
-      fetchSearch(state.query, state.page).then((data) => {
-        renderMovies(data, true)
-        loading.classList.add("hidden")
-      })
-    }
 
-    else if (state.genre != 0) {
-      fetchMovieByGenre(state.genre, state.page).then((data) => {
-        renderMovies(data, true)
-        loading.classList.add("hidden")
+    // 4. Figure out which fetch to run
+    const fetchFn = state.query
+      ? fetchSearch(state.query, state.page, null)
+      : state.genre != 0
+        ? fetchMovieByGenre(state.genre, state.page)
+        : fetchTrending();
+
+    // 5. Fetch, render, and ALWAYS unlock the door at the end
+    fetchFn
+      .then(data => {
+        state.totalPages = data.total_pages; // Track max pages
+        renderMovies(data, true);
       })
-    }
-    else {
-      fetchTrending().then(data => {
-        renderMovies(data, true)
+      .catch(err => showToast(err.message, "error"))
+      .finally(() => {
+        state.isLoading = false; // Unlock the door!
         loading.classList.add("hidden");
-      })
-
-    }
-
+      });
   }
-}, { threshold: 0.1 })
+}, { threshold: 0.1 });
 
-intersectionObserver.observe(sentinel)
+intersectionObserver.observe(sentinel);

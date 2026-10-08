@@ -42,7 +42,7 @@ Bonus   — Solidify        → lock in every concept
 | 07 | [Crypto Dashboard](./tier-2-async-apis/07-crypto-dashboard) | Advanced UI | [Demo](#) | ⬜ |
 
 ### Tier 3 — Advanced Patterns
-| # | Project | Main Concept | Live | Status |
+| # | Project | Main Concept | Live | Status |s
 |---|---------|--------------|------|--------|
 | 08 | [Chat UI](./tier-3-advanced-patterns/08-chat-ui) | Real-time comms | [Demo](#) | ⬜ |
 | 09 | [Trello Clone](./tier-3-advanced-patterns/09-trello-clone) | Complex state & UX | [Demo](#) | ⬜ |
