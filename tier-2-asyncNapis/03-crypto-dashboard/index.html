@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CryptoWatch 📈</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- ── HEADER ── -->
+    <header class="header">
+      <div class="header__inner">
+        <h1 class="header__logo">📈 CryptoWatch</h1>
+        <div class="header__status">
+          <span id="refresh-dot" class="status-dot"></span>
+          <span id="refresh-text" class="status-text"
+            >Live • Updated 30s ago</span
+          >
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- ── TOOLBAR ── -->
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="search-input"
+            class="search-input"
+            placeholder="Search coin... e.g. Bitcoin"
+            autocomplete="off"
+          />
+        </div>
+        <div class="sort-tabs">
+          <button class="sort-btn active" data-sort="market_cap">
+            Mkt Cap
+          </button>
+          <button class="sort-btn" data-sort="current_price">Price</button>
+          <button class="sort-btn" data-sort="price_change_percentage_24h">
+            24h %
+          </button>
+        </div>
+      </div>
+
+      <!-- ── CRYPTO TABLE ── -->
+      <div class="table-wrapper">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th class="left">Coin</th>
+              <th>Price</th>
+              <th>24h %</th>
+              <th class="hide-sm">Market Cap</th>
+              <th>★</th>
+            </tr>
+          </thead>
+          <tbody id="crypto-tbody">
+            <!-- Rows injected by JS -->
+          </tbody>
+        </table>
+        <div id="loading" class="loading hidden">
+          <div class="spinner"></div>
+          <p class="loading__text">Fetching market data...</p>
+        </div>
+        <div id="empty-state" class="empty-state hidden">
+          <p class="empty-state__icon">🪙</p>
+          <p class="empty-state__text">No coins found</p>
+          <p class="empty-state__sub">Try a different search</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- ── MODAL ── -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+      <div class="modal">
+        <button id="modal-close" class="modal__close">✕</button>
+        <div class="modal__header">
+          <img id="modal-img" class="modal__img" src="" alt="" />
+          <div>
+            <h2 id="modal-title" class="modal__title">--</h2>
+            <span id="modal-symbol" class="modal__symbol">--</span>
+          </div>
+          <div class="modal__price-wrap">
+            <span id="modal-price" class="modal__price">$--</span>
+            <span id="modal-change" class="modal__change">--%</span>
+          </div>
+        </div>
+        <div class="modal__stats">
+          <div class="stat-box">
+            <span class="stat-label">Market Cap Rank</span>
+            <span id="modal-rank" class="stat-value">#--</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">24h High</span>
+            <span id="modal-high" class="stat-value green">$--</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">24h Low</span>
+            <span id="modal-low" class="stat-value red">$--</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">24h Volume</span>
+            <span id="modal-volume" class="stat-value">$--</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Circulating Supply</span>
+            <span id="modal-supply" class="stat-value">--</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TOAST ── -->
+    <div id="toast" class="toast hidden">
+      <span id="toast-msg"></span>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
