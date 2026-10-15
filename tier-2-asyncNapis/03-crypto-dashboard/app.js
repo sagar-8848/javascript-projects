@@ -106,8 +106,17 @@ function renderTable(coins, oldCoins) {
     const tr = document.createElement("tr");
 
     // ? check if the old coins exist or not 
+    let priceClass = ""
 
     const oldCoin = oldCoins ? oldCoins.find(c => c.id === coin.id) : null;
+    if (oldCoin) {
+      if (coin.current_price > oldCoin.current_price) {
+        priceClass = "flash-up";
+      }
+      else if (coin.current_price < oldCoin.current_price) {
+        priceClass = "flash-down"
+      }
+    }
 
     // ? figure out if the price went up or down
 
@@ -120,7 +129,6 @@ function renderTable(coins, oldCoins) {
     <td class="td-rank">${coin.market_cap_rank}</td>
 
 
-
     <td class="td-coin" >
       <img src="${coin.image}" alt="${coin.name}" class="coin-icon">
       <div class="coin-info">
@@ -131,7 +139,7 @@ function renderTable(coins, oldCoins) {
 
     
 
-    <td class="td-price">$${coin.current_price.toLocaleString()}</td>
+    <td class="td-price ${priceClass}">$${coin.current_price.toLocaleString()}</td>
 
 
           <td class="td-change">
@@ -153,15 +161,51 @@ function renderTable(coins, oldCoins) {
   })
 }
 
+function sortAndRender(){
+  
+}
+
 
 // ==========================================
 // 6. MANAGER & LISTENERS
 // ==========================================
 
 
+// ! filter the search 
+
+searchInput.addEventListener("input", () => {
+  const searchedValue = searchInput.value.trim().toLowerCase();
+  state.query = searchedValue;
+
+  if (searchedValue === "") {
+    renderTable(state.coins)
+  }
+  else {
+    const filteredOne = state.coins.filter(curCoin => curCoin.name.toLowerCase().includes(searchedValue));
+    renderTable(filteredOne)
+  }
+
+})
+
+// ! sorting feature 
+
+sortableCols.forEach((col) => {
+  curItem.addEventListener("click", () => {
+    const sortKey = col.getAttribute("data-sort");
+    state.sortBy = sortKey;
+    sortAndRender()
+  })
+})
+
+// ! sortAndRender function 
+
+
+
+// ! init function 
 async function init() {
   try {
     const data = await fetchTopCoins();
+    state.coins = data;
     renderTable(data)
   }
   catch (err) {
@@ -175,13 +219,18 @@ async function init() {
     try {
       const oldCoins = [...state.coins]
       const newData = await fetchTopCoins();
+      state.coins = newData;
       renderTable(newData, oldCoins)
+
     }
     catch (err) {
       console.log("something went wrong!, try again after sometimes!")
     }
   }, 30000);
 }
+
+
+
 
 // ? to start the app
 init()
