@@ -161,12 +161,9 @@ function renderTable(coins, oldCoins) {
   })
 }
 
-function sortAndRender(){
-  
-}
 
 
-// ==========================================
+// ==========================================sz\
 // 6. MANAGER & LISTENERS
 // ==========================================
 
@@ -190,15 +187,48 @@ searchInput.addEventListener("input", () => {
 // ! sorting feature 
 
 sortableCols.forEach((col) => {
-  curItem.addEventListener("click", () => {
+  col.addEventListener("click", () => {
     const sortKey = col.getAttribute("data-sort");
-    state.sortBy = sortKey;
+    if (state.sortBy === sortKey) {
+      state.sortDir = state.sortDir === "desc" ? "asc" : "desc"
+    }
+    else {
+      state.sortBy = sortKey;
+      state.sortDir = "desc"  // our default sort directionw will be higher to lower
+    }
     sortAndRender()
   })
 })
 
 // ! sortAndRender function 
 
+function sortAndRender() {
+  const sorted = [...state.coins]
+  // ? if the user have not cliked any sort key then just show the default data 
+  if (state.sortBy === null) {
+    renderTable(sorted)
+    return;
+  }
+
+  // ? if the user wants to sort by any sortkey then 
+
+  // ? if the sort direction is in higher to lower, change it into lower to higher
+  if (state.sortDir === "desc") {
+    sorted.sort((a, b) => {
+      return b[state.sortBy] - a[state.sortBy]
+    })
+  }
+
+  // ? else change it into higher to lower 
+  else {
+    sorted.sort((a, b) => {
+      return a[state.sortBy] - b[state.sortBy]
+    })
+  }
+
+  renderTable(sorted)
+
+}
 
 
 // ! init function 
