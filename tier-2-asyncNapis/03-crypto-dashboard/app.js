@@ -118,6 +118,11 @@ function renderTable(coins, oldCoins) {
       }
     }
 
+    // ! check if the coin exists in state.watchlist or not 
+
+    const isExist = state.watchlist.includes(coin.id)
+    const watchedClass = isExist ? "watched" : ""
+
     // ? figure out if the price went up or down
 
     const isUp = coin.price_change_percentage_24h > 0;
@@ -152,7 +157,7 @@ function renderTable(coins, oldCoins) {
       <td class="td-cap td-hide-sm">$${coin.market_cap.toLocaleString()}</td>
  
      <td class="td-watch">
-        <button class="watch-btn">⭐</button>
+        <button class="watch-btn ${watchedClass}" data-id=${coin.id}>⭐</button>
       </td>
 
       `
@@ -182,6 +187,23 @@ searchInput.addEventListener("input", () => {
     renderTable(filteredOne)
   }
 
+})
+
+// ! when some one clicks on start button, push it to the watchlist array
+
+coinsTbody.addEventListener("click", (e) => {
+  if (e.target.classList.contains("watch-btn")) {
+    const coinId = e.target.getAttribute("data-id")
+
+    if (state.watchlist.includes(coinId)) {
+      state.watchlist = state.watchlist.filter(id => id !== coinId)
+    }
+    else {
+      state.watchlist.push(coinId)
+    }
+    localStorage.setItem("cryptoWatchlist", JSON.stringify(state.watchlist))
+    e.target.classList.toggle("watched")
+  }
 })
 
 // ! sorting feature 
@@ -230,9 +252,30 @@ function sortAndRender() {
 
 }
 
+// ! adding add event listener to the tabs
+
+tabs.forEach((tab) => {
+  tab.addEventListener("click", (e) => {
+    const tabName = tab.getAttribute("data-tab")
+    state.tab = tabName;
+    renderTableByTab(tab)
+  })
+})
+
+// ! renderTableByTab()
+
+function renderTableByTab(tab) {
+  tabs.forEach(tab => tab.classList.remove("active"));
+  tab.classList.add("active")
+}
 
 // ! init function 
 async function init() {
+  const savedCoins = localStorage.getItem("cryptoWatchlist");
+
+  if (savedCoins) {
+    state.watchlist = JSON.parse(savedCoins)
+  }
   try {
     const data = await fetchTopCoins();
     state.coins = data;
@@ -258,6 +301,7 @@ async function init() {
     }
   }, 30000);
 }
+
 
 
 
