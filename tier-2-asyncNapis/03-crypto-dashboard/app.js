@@ -69,6 +69,7 @@ const state = {
 // 3. UTILITIES
 // ==========================================
 
+let prevCoins = [];
 let toastTimer;
 function showToast(msg, type = "success") {
   clearTimeout(toastTimer);
@@ -203,6 +204,8 @@ coinsTbody.addEventListener("click", (e) => {
     }
     localStorage.setItem("cryptoWatchlist", JSON.stringify(state.watchlist))
     e.target.classList.toggle("watched")
+    renderCurrentView()
+
   }
 })
 
@@ -252,21 +255,66 @@ function sortAndRender() {
 
 }
 
-// ! adding add event listener to the tabs
+// ! event listener to the tabs
 
 tabs.forEach((tab) => {
   tab.addEventListener("click", (e) => {
     const tabName = tab.getAttribute("data-tab")
     state.tab = tabName;
-    renderTableByTab(tab)
+
+    // * remove all the active class from the tab
+    tabs.forEach(t => t.classList.remove("active"));
+
+    // * add an active class which tab was clicked
+    tab.classList.add("active")
+
+    renderCurrentView()
   })
 })
 
 // ! renderTableByTab()
 
-function renderTableByTab(tab) {
-  tabs.forEach(tab => tab.classList.remove("active"));
-  tab.classList.add("active")
+// function renderTableByTab(tab) {
+//   tabs.forEach(tab => tab.classList.remove("active"));
+//   tab.classList.add("active")
+
+//   if (state.tab === "all") {
+//     renderTable(state.coins)
+//   }
+//   else {
+//     const filtered = state.coins.filter(coin => state.watchlist.includes(coin.id));
+
+//     if (filtered.length === 0) {
+//       watchlistEmpty.classList.remove("hidden")
+//       coinsTbody.innerHTML = ""
+//     }
+//     if (filtered.length > 0) {
+//       watchlistEmpty.classList.add("hidden")
+//       renderTable(filtered)
+//     }
+//   }
+// }
+
+// ! function renderCurrentView
+
+function renderCurrentView() {
+  if (state.tab === "all") {
+    watchlistEmpty.classList.add("hidden")
+    renderTable(state.coins, prevCoins)
+  }
+
+  else {
+    const filtered = state.coins.filter(coin => state.watchlist.includes(coin.id));
+
+    if (filtered.length === 0) {
+      watchlistEmpty.classList.remove("hidden")
+      coinsTbody.innerHTML = ""
+    }
+    else {
+      watchlistEmpty.classList.add("hidden")
+      renderTable(filtered, prevCoins)
+    }
+  }
 }
 
 // ! init function 
@@ -290,11 +338,10 @@ async function init() {
 
   state.intervalId = setInterval(async () => {
     try {
-      const oldCoins = [...state.coins]
+      prevCoins = [...state.coins]
       const newData = await fetchTopCoins();
       state.coins = newData;
-      renderTable(newData, oldCoins)
-
+      renderCurrentView()
     }
     catch (err) {
       console.log("something went wrong!, try again after sometimes!")
@@ -308,3 +355,6 @@ async function init() {
 
 // ? to start the app
 init()
+
+
+// ! The DOM is just a mirror of state. Whenever state changes, wipe the mirror and redraw. That's the whole game.
