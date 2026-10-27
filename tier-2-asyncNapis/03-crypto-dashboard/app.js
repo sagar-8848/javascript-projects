@@ -94,6 +94,16 @@ async function fetchTopCoins() {
   return data;
 }
 
+// ? fetch coinDetails
+
+async function fetchCoinDetails(coinId) {
+  const res = await fetch(`${BASE_URL}/coins/${coinId}`);
+  if (!res.ok) {
+    throw new Error("failed to fetch the coin data, try again after sometimes...")
+  }
+  const data = await res.json();
+  return data;
+}
 
 
 
@@ -105,6 +115,7 @@ function renderTable(coins, oldCoins) {
   coinsTbody.innerHTML = ""
   coins.forEach((coin) => {
     const tr = document.createElement("tr");
+    tr.dataset.id = coin.id;
 
     // ? check if the old coins exist or not 
     let priceClass = ""
@@ -207,6 +218,10 @@ coinsTbody.addEventListener("click", (e) => {
     renderCurrentView()
 
   }
+  else if (e.target.closest("tr")) {
+    const coinId = e.target.closest("tr").getAttribute("data-id")
+    openModal(coinId)
+  }
 })
 
 // ! sorting feature 
@@ -272,28 +287,6 @@ tabs.forEach((tab) => {
   })
 })
 
-// ! renderTableByTab()
-
-// function renderTableByTab(tab) {
-//   tabs.forEach(tab => tab.classList.remove("active"));
-//   tab.classList.add("active")
-
-//   if (state.tab === "all") {
-//     renderTable(state.coins)
-//   }
-//   else {
-//     const filtered = state.coins.filter(coin => state.watchlist.includes(coin.id));
-
-//     if (filtered.length === 0) {
-//       watchlistEmpty.classList.remove("hidden")
-//       coinsTbody.innerHTML = ""
-//     }
-//     if (filtered.length > 0) {
-//       watchlistEmpty.classList.add("hidden")
-//       renderTable(filtered)
-//     }
-//   }
-// }
 
 // ! function renderCurrentView
 
@@ -315,6 +308,35 @@ function renderCurrentView() {
       renderTable(filtered, prevCoins)
     }
   }
+}
+
+// ! open modal function 
+
+async function openModal(coinId) {
+  const foundCoin = state.coins.find(c => c.id === coinId);
+  if (!foundCoin) return;
+
+
+  modalOverlay.classList.remove("hidden")
+  modalIcon.src = foundCoin.image;
+  modalName.textContent = foundCoin.name;
+  modalSymbol.textContent = foundCoin.symbol.toUpperCase();
+  modalRank.textContent = `#${foundCoin.market_cap_rank}`
+  modalPrice.textContent = `$${foundCoin.current_price.toLocaleString()}`
+
+  const isUp = foundCoin.price_change_percentage_24h > 0
+  const changeSign = isUp ? "+" : ""
+  const changeValue = foundCoin.price_change_percentage_24h
+    ? foundCoin.price_change_percentage_24h.toFixed(2)
+    : "0.00"
+  modalChange.textContent = `${changeSign}${changeValue}%`
+
+  modalCap.textContent = `$${foundCoin.market_cap.toLocaleString()} `
+  modalVol.textContent = `$${foundCoin.total_volume.toLocaleString()} `
+  modalHigh.textContent = `$${foundCoin.high_24h.toLocaleString()} `
+  modalLow.textContent = `$${foundCoin.low_24h.toLocaleString()} `
+  modalSupply.textContent = foundCoin.circulating_supply.toLocaleString()
+  modalAth.textContent = `$${foundCoin.ath.toLocaleString()} `
 }
 
 // ! init function 
