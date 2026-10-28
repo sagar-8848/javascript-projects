@@ -672,8 +672,8 @@ body {
 }
 .modal__close {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: 5px;
+  right: 5px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 99px;
@@ -818,6 +818,31 @@ body {
   overflow: hidden;
 }
 
+.modal__read-more {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 28px 20px;
+  text-align: left;
+  transition: all var(--transition);
+  font-family: var(--font);
+  letter-spacing: 0.3px;
+}
+
+.modal__read-more:hover {
+  opacity: 0.7;
+  text-decoration: underline;
+}
+
+.modal__desc.expanded {
+  -webkit-line-clamp: unset;
+  display: block;
+  -webkit-box-orient: unset;
+  overflow: visible;
+}
 /* ── TOAST ── */
 .toast {
   position: fixed;
@@ -948,6 +973,16 @@ body {
   }
   .modal-overlay {
     animation: none;
+  }
+  .modal__read-more {
+    display: none;
+  }
+
+  .modal__desc {
+    -webkit-line-clamp: unset;
+    display: block;
+    -webkit-box-orient: unset;
+    overflow: visible;
   }
   @keyframes modalIn {
     from {

@@ -337,7 +337,25 @@ async function openModal(coinId) {
   modalLow.textContent = `$${foundCoin.low_24h.toLocaleString()} `
   modalSupply.textContent = foundCoin.circulating_supply.toLocaleString()
   modalAth.textContent = `$${foundCoin.ath.toLocaleString()} `
+
+
+  modalDesc.textContent = "description loading..."
+  try {
+    const data = await fetchCoinDetails(coinId);
+    modalDesc.textContent = data.description.en
+  }
+  catch (err) {
+    modalDesc.textContent = "Failed to load description."
+    showToast("Could not load coin details", "error")
+  }
 }
+
+// ! close modal
+
+modalClose.addEventListener("click", ()=> {
+  modalOverlay.classList.add("hidden")
+})
+
 
 // ! init function 
 async function init() {
