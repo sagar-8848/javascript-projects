@@ -650,6 +650,9 @@ body {
   }
 }
 .modal {
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: var(--surface);
   border: 1px solid var(--border-light);
   border-radius: var(--radius);
@@ -658,7 +661,8 @@ body {
   position: relative;
   box-shadow: var(--shadow);
   animation: modalIn 0.25s ease;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column; /* NEW */
 }
 @keyframes modalIn {
   from {
@@ -670,10 +674,11 @@ body {
     transform: scale(1) translateY(0);
   }
 }
+
 .modal__close {
-  position: absolute;
-  top: 5px;
-  right: 5px;
+  position: sticky;
+  top: 8px;
+  margin: 8px 8px 0 auto; /* top-right via auto left margin */
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 99px;
@@ -685,6 +690,8 @@ body {
   z-index: 10;
   transition: all var(--transition);
   line-height: 1.4;
+  align-self: flex-end; /* NEW: pin right in flex */
+  flex-shrink: 0;
 }
 .modal__close:hover {
   background: var(--down-bg);
