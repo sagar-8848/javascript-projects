@@ -42,6 +42,7 @@ const modalLow = document.getElementById('modal-low');
 const modalSupply = document.getElementById('modal-supply');
 const modalAth = document.getElementById('modal-ath');
 const modalDesc = document.getElementById('modal-desc');
+const readMoreBtn = document.getElementById("read-more");
 
 // ── TOAST ──
 const toast = document.getElementById('toast');
@@ -313,6 +314,8 @@ function renderCurrentView() {
 // ! open modal function 
 
 async function openModal(coinId) {
+  modalDesc.classList.remove("expanded");
+  readMoreBtn.textContent = "Read More..."
   const foundCoin = state.coins.find(c => c.id === coinId);
   if (!foundCoin) return;
 
@@ -350,11 +353,50 @@ async function openModal(coinId) {
   }
 }
 
+readMoreBtn.addEventListener("click", () => {
+  console.log("readmore btn clicked!")
+
+  modalDesc.classList.toggle("expanded");
+
+  readMoreBtn.textContent = modalDesc.classList.contains("expanded") ? "Read Less" : "Read More..."
+})
+
 // ! close modal
 
-modalClose.addEventListener("click", ()=> {
+modalClose.addEventListener("click", () => {
   modalOverlay.classList.add("hidden")
 })
+
+modalOverlay.addEventListener("click", (e) => {
+  if (e.target === e.currentTarget) {
+    modalOverlay.classList.add("hidden")
+  }
+})
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    if (modalOverlay.classList.contains("hidden")) return;
+    modalOverlay.classList.add("hidden")
+  }
+})
+
+
+// ! for the global dashboard
+
+async function fetchGlobalStats() {
+  const res = await fetch(`${BASE_URL}/global`);
+  if (!res.ok) throw new Error("failed to fetch the market data!")
+  const json = await res.json();
+  return json.data;
+
+}
+
+function renderGlobalStats(data) {
+  gMarketCap.textContent = `$${data.total_market_cap.usd.toLocaleString()}`;
+  gVolume.textContent = `$${data.total_volume.usd.toLocaleString()}`;
+  gBtc.textContent = `${data.market_cap_percentage.btc.toFixed(1)}%`;
+  gCoins.textContent = data.active_cryptocurrencies.toLocaleString();
+}
 
 
 // ! init function 
@@ -368,6 +410,11 @@ async function init() {
     const data = await fetchTopCoins();
     state.coins = data;
     renderTable(data)
+
+    // * show dashboard data
+
+    const globalData = await fetchGlobalStats();
+    renderGlobalStats(globalData)
   }
   catch (err) {
     console.error("Init crashed:", err.message)
