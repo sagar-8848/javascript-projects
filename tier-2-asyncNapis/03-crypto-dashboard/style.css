@@ -143,7 +143,7 @@ body {
   stroke-linecap: round;
   stroke-dasharray: 94.25; /* 2π × 15 */
   stroke-dashoffset: 0;
-  transition: stroke-dashoffset 1s linear;
+  transition: stroke-dashoffset 30s linear;
 }
 .refresh-btn {
   position: absolute;

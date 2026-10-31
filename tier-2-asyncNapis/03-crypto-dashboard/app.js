@@ -191,15 +191,7 @@ function renderTable(coins, oldCoins) {
 searchInput.addEventListener("input", () => {
   const searchedValue = searchInput.value.trim().toLowerCase();
   state.query = searchedValue;
-
-  if (searchedValue === "") {
-    renderTable(state.coins)
-  }
-  else {
-    const filteredOne = state.coins.filter(curCoin => curCoin.name.toLowerCase().includes(searchedValue));
-    renderTable(filteredOne)
-  }
-
+  renderCurrentView()
 })
 
 // ! when some one clicks on start button, push it to the watchlist array
@@ -210,9 +202,11 @@ coinsTbody.addEventListener("click", (e) => {
 
     if (state.watchlist.includes(coinId)) {
       state.watchlist = state.watchlist.filter(id => id !== coinId)
+      showToast("removed from watchlist!", "error")
     }
     else {
       state.watchlist.push(coinId)
+      showToast("added to wachlist!", "success")
     }
     localStorage.setItem("cryptoWatchlist", JSON.stringify(state.watchlist))
     e.target.classList.toggle("watched")
@@ -237,39 +231,10 @@ sortableCols.forEach((col) => {
       state.sortBy = sortKey;
       state.sortDir = "desc"  // our default sort directionw will be higher to lower
     }
-    sortAndRender()
+    renderCurrentView()
   })
 })
 
-// ! sortAndRender function 
-
-function sortAndRender() {
-  const sorted = [...state.coins]
-  // ? if the user have not cliked any sort key then just show the default data 
-  if (state.sortBy === null) {
-    renderTable(sorted)
-    return;
-  }
-
-  // ? if the user wants to sort by any sortkey then 
-
-  // ? if the sort direction is in higher to lower, change it into lower to higher
-  if (state.sortDir === "desc") {
-    sorted.sort((a, b) => {
-      return b[state.sortBy] - a[state.sortBy]
-    })
-  }
-
-  // ? else change it into higher to lower 
-  else {
-    sorted.sort((a, b) => {
-      return a[state.sortBy] - b[state.sortBy]
-    })
-  }
-
-  renderTable(sorted)
-
-}
 
 // ! event listener to the tabs
 
@@ -292,22 +257,44 @@ tabs.forEach((tab) => {
 // ! function renderCurrentView
 
 function renderCurrentView() {
-  if (state.tab === "all") {
-    watchlistEmpty.classList.add("hidden")
-    renderTable(state.coins, prevCoins)
+
+  // * copying the state.coin in the variable named result
+  let result = [...state.coins];
+
+  // * logic for the state.watchlist
+
+  if (state.tab === "watchlist") {
+    result = result.filter((coin) => state.watchlist.includes(coin.id))
   }
 
-  else {
-    const filtered = state.coins.filter(coin => state.watchlist.includes(coin.id));
+  if (state.query) {
+    result = result.filter(coin => coin.name.toLowerCase().includes(state.query))
+  }
 
-    if (filtered.length === 0) {
-      watchlistEmpty.classList.remove("hidden")
-      coinsTbody.innerHTML = ""
+  if (state.sortBy) {
+    if (state.sortDir === "desc") {
+      result.sort((a, b) => {
+        return b[state.sortBy] - a[state.sortBy]
+      })
     }
+
+    // ? else change it into higher to lower 
     else {
-      watchlistEmpty.classList.add("hidden")
-      renderTable(filtered, prevCoins)
+      result.sort((a, b) => {
+        return a[state.sortBy] - b[state.sortBy]
+      })
     }
+  }
+
+  // what if result is empty 
+
+  if (result.length === 0) {
+    watchlistEmpty.classList.remove("hidden");
+    coinsTbody.innerHTML = "";
+  }
+  else {
+    watchlistEmpty.classList.add("hidden");
+    renderTable(result, prevCoins)
   }
 }
 
@@ -354,8 +341,6 @@ async function openModal(coinId) {
 }
 
 readMoreBtn.addEventListener("click", () => {
-  console.log("readmore btn clicked!")
-
   modalDesc.classList.toggle("expanded");
 
   readMoreBtn.textContent = modalDesc.classList.contains("expanded") ? "Read Less" : "Read More..."
@@ -398,6 +383,55 @@ function renderGlobalStats(data) {
   gCoins.textContent = data.active_cryptocurrencies.toLocaleString();
 }
 
+// ? CLICK ON THE REFRESH BUTTON TO REFRESH THE PAGE MANUALLY
+refreshBtn.addEventListener("click", () => {
+  refresh()
+  showToast("page refreshed!", "success")
+})
+
+// * animate ring 
+
+function animateRing() {
+  refreshRingPrg.style.transition = "none";
+  refreshRingPrg.style.strokeDashoffset = "94.25"
+
+  requestAnimationFrame(() => {
+    // Step 3: re-enable transition + start animation
+    refreshRingPrg.style.transition = "stroke-dashoffset 30s linear";
+    refreshRingPrg.style.strokeDashoffset = "0";
+  });
+
+}
+// * function lastupdated
+
+function updateLastUpdated() {
+  const now = new Date();
+  const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })
+
+  lastUpdated.textContent = `Updated ${time}`;
+}
+
+// * function for refresh 
+
+async function refresh() {
+  try {
+    prevCoins = [...state.coins]
+
+    const [coins, global] = await Promise.all([
+      fetchTopCoins(),
+      fetchGlobalStats()
+    ])
+    state.coins = coins;
+    renderCurrentView()
+    updateLastUpdated()
+    animateRing()
+
+    renderGlobalStats(global)
+  }
+  catch (err) {
+    showToast("something went wrong!, try again after sometimes!", "error")
+  }
+}
 
 // ! init function 
 async function init() {
@@ -407,14 +441,17 @@ async function init() {
     state.watchlist = JSON.parse(savedCoins)
   }
   try {
-    const data = await fetchTopCoins();
-    state.coins = data;
-    renderTable(data)
+    const [coins, global] = await Promise.all([
+      fetchTopCoins(),
+      fetchGlobalStats()
+    ])
+    state.coins = coins;
+    renderTable(coins)
+    updateLastUpdated()
+    animateRing()
 
     // * show dashboard data
-
-    const globalData = await fetchGlobalStats();
-    renderGlobalStats(globalData)
+    renderGlobalStats(global)
   }
   catch (err) {
     console.error("Init crashed:", err.message)
@@ -423,16 +460,9 @@ async function init() {
     emptyStateEl.classList.remove("hidden");
   }
 
-  state.intervalId = setInterval(async () => {
-    try {
-      prevCoins = [...state.coins]
-      const newData = await fetchTopCoins();
-      state.coins = newData;
-      renderCurrentView()
-    }
-    catch (err) {
-      console.log("something went wrong!, try again after sometimes!")
-    }
+  state.intervalId = setInterval(() => {
+    refresh()
+
   }, 30000);
 }
 
