@@ -242,7 +242,7 @@ const API_KEY = "your_api_key_here";
 
 ## 🔗 Live Demo
 
-[View Live](https://sagar-8848.github.io/javascript-projects/tier-2-foundations/02-movie-explorer/index.html)
+[View Live](https://sagar-8848.github.io/javascript-projects/tier-2-asyncNapis/02-movie-explorer/index.html)
 
 ## 📁 File Structure
 
