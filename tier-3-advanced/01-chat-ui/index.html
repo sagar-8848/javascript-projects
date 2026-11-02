@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatUI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- ============================================================
+       APP SHELL
+  ============================================================ -->
+    <div class="app" id="app">
+      <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+      <aside class="sidebar" id="sidebar" aria-label="Conversation history">
+        <!-- Sidebar header -->
+        <div class="sidebar__header">
+          <div class="sidebar__brand">
+            <svg
+              class="sidebar__logo"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                fill="currentColor"
+              />
+            </svg>
+            <span class="sidebar__title">ChatUI</span>
+          </div>
+          <!-- Mobile close button -->
+          <button
+            class="sidebar__close btn-icon"
+            id="sidebar-close"
+            aria-label="Close sidebar"
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M18 6L6 18M6 6l12 12"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- New chat button -->
+        <button
+          class="btn-new-chat"
+          id="new-chat-btn"
+          aria-label="Start new conversation"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M12 5v14M5 12h14"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          New Chat
+        </button>
+
+        <!-- Conversation list -->
+        <nav class="sidebar__nav" aria-label="Past conversations">
+          <p class="sidebar__section-label">Recent</p>
+          <ul class="conv-list" id="conv-list" role="list">
+            <!-- Conversations injected by JS -->
+          </ul>
+        </nav>
+
+        <!-- Sidebar footer -->
+        <div class="sidebar__footer">
+          <button class="btn-icon sidebar__settings" aria-label="Settings">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle
+                cx="12"
+                cy="12"
+                r="3"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+            </svg>
+          </button>
+          <div class="sidebar__user">
+            <div class="sidebar__avatar" aria-hidden="true">S</div>
+            <span class="sidebar__username">Sagar</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ── SIDEBAR OVERLAY (mobile) ─────────────────────────── -->
+      <div
+        class="sidebar-overlay"
+        id="sidebar-overlay"
+        aria-hidden="true"
+      ></div>
+
+      <!-- ── MAIN CHAT AREA ──────────────────────────────────── -->
+      <main class="chat-area" id="chat-area">
+        <!-- Top bar -->
+        <header class="topbar">
+          <!-- Mobile hamburger -->
+          <button
+            class="btn-icon topbar__menu"
+            id="sidebar-toggle"
+            aria-label="Open sidebar"
+            aria-expanded="false"
+            aria-controls="sidebar"
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M3 12h18M3 6h18M3 18h18"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+
+          <h1 class="topbar__conv-title" id="topbar-title">New Conversation</h1>
+
+          <!-- Action buttons -->
+          <div class="topbar__actions">
+            <button
+              class="btn-icon"
+              id="clear-chat-btn"
+              aria-label="Clear conversation"
+              title="Clear chat"
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <!-- ── MESSAGES AREA ── -->
+        <div
+          class="messages-wrap"
+          id="messages-wrap"
+          role="log"
+          aria-label="Conversation messages"
+          aria-live="polite"
+        >
+          <!-- Empty / Welcome state (shown when no messages) -->
+          <div class="welcome-state" id="welcome-state" aria-hidden="false">
+            <div class="welcome-state__icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none">
+                <circle
+                  cx="24"
+                  cy="24"
+                  r="22"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  opacity="0.3"
+                />
+                <path
+                  d="M14 24c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10H14l2-4"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <circle cx="19" cy="24" r="1.5" fill="currentColor" />
+                <circle cx="24" cy="24" r="1.5" fill="currentColor" />
+                <circle cx="29" cy="24" r="1.5" fill="currentColor" />
+              </svg>
+            </div>
+            <h2 class="welcome-state__heading">How can I help you today?</h2>
+            <p class="welcome-state__sub">
+              Ask me anything. I'll do my best to help.
+            </p>
+
+            <!-- Suggestion chips -->
+            <div class="suggestions" role="list" aria-label="Suggested prompts">
+              <button class="suggestion-chip" role="listitem">
+                ✍️ Help me write an email
+              </button>
+              <button class="suggestion-chip" role="listitem">
+                🧠 Explain a concept simply
+              </button>
+              <button class="suggestion-chip" role="listitem">
+                🐛 Debug my code
+              </button>
+              <button class="suggestion-chip" role="listitem">
+                📋 Summarize this text
+              </button>
+            </div>
+          </div>
+
+          <!-- Messages container — JS appends bubbles here -->
+          <div class="messages" id="messages" aria-label="Messages"></div>
+        </div>
+
+        <!-- ── INPUT BAR ── -->
+        <div class="input-bar" role="form" aria-label="Message input">
+          <div class="input-bar__inner">
+            <textarea
+              class="input-bar__textarea"
+              id="message-input"
+              placeholder="Message ChatUI…"
+              rows="1"
+              maxlength="4000"
+              aria-label="Type your message"
+              aria-multiline="true"
+            ></textarea>
+
+            <div class="input-bar__actions">
+              <span
+                class="input-bar__char-count"
+                id="char-count"
+                aria-live="polite"
+                aria-label="Character count"
+              ></span>
+              <button
+                class="btn-send"
+                id="send-btn"
+                aria-label="Send message"
+                disabled
+              >
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <p class="input-bar__hint">
+            Press <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line
+          </p>
+        </div>
+      </main>
+    </div>
+    <!-- /app -->
+
+    <script src="app.js"></script>
+  </body>
+</html>
