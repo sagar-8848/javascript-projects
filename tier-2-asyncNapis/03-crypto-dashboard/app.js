@@ -168,6 +168,7 @@ function renderTable(coins, oldCoins) {
 
 
       <td class="td-cap td-hide-sm">$${coin.market_cap.toLocaleString()}</td>
+      <td class="td-volume td-hide-sm">$${coin.total_volume.toLocaleString()}</td>
  
      <td class="td-watch">
         <button class="watch-btn ${watchedClass}" data-id=${coin.id}>⭐</button>
@@ -206,7 +207,7 @@ coinsTbody.addEventListener("click", (e) => {
     }
     else {
       state.watchlist.push(coinId)
-      showToast("added to wachlist!", "success")
+      showToast("added to watchlist!", "success")
     }
     localStorage.setItem("cryptoWatchlist", JSON.stringify(state.watchlist))
     e.target.classList.toggle("watched")
@@ -269,6 +270,7 @@ function renderCurrentView() {
 
   if (state.query) {
     result = result.filter(coin => coin.name.toLowerCase().includes(state.query))
+
   }
 
   if (state.sortBy) {
@@ -289,11 +291,19 @@ function renderCurrentView() {
   // what if result is empty 
 
   if (result.length === 0) {
-    watchlistEmpty.classList.remove("hidden");
+    if (state.query) {
+      emptyStateEl.classList.remove("hidden");
+      watchlistEmpty.classList.add("hidden")
+
+    } else {
+      emptyStateEl.classList.add("hidden");
+      watchlistEmpty.classList.remove("hidden")
+    }
     coinsTbody.innerHTML = "";
   }
   else {
-    watchlistEmpty.classList.add("hidden");
+    emptyStateEl.classList.add("hidden");
+    watchlistEmpty.classList.add("hidden")
     renderTable(result, prevCoins)
   }
 }
@@ -377,16 +387,18 @@ async function fetchGlobalStats() {
 }
 
 function renderGlobalStats(data) {
-  gMarketCap.textContent = `$${data.total_market_cap.usd.toLocaleString()}`;
-  gVolume.textContent = `$${data.total_volume.usd.toLocaleString()}`;
+  gMarketCap.textContent = `$${formatLarge(data.total_market_cap.usd)}`;;
+  gVolume.textContent = `$${formatLarge(data.total_volume.usd)}`;
   gBtc.textContent = `${data.market_cap_percentage.btc.toFixed(1)}%`;
   gCoins.textContent = data.active_cryptocurrencies.toLocaleString();
 }
 
 // ? CLICK ON THE REFRESH BUTTON TO REFRESH THE PAGE MANUALLY
-refreshBtn.addEventListener("click", () => {
-  refresh()
-  showToast("page refreshed!", "success")
+refreshBtn.addEventListener("click", async () => {
+  clearInterval(state.intervalId)
+  startAutoRefresh()
+  const success = await refresh()
+  if (success) showToast("page refreshed!", "success")
 })
 
 // * animate ring 
@@ -411,10 +423,38 @@ function updateLastUpdated() {
   lastUpdated.textContent = `Updated ${time}`;
 }
 
+// * format large amount
+
+function formatLarge(num) {
+  if (num >= 1_000_000_000_000) {
+    return (num / 1_000_000_000_000).toFixed(2) + "T"
+  }
+  if (num >= 1_000_000_000) {
+    return (num / 1_000_000_000).toFixed(2) + "B"
+  }
+  if (num >= 1_000_000) {
+    return (num / 1_000_000).toFixed(2) + "M"
+  }
+  if (num >= 1_000) {
+    return (num / 1_000).toFixed(2) + "K"
+  }
+  return num.toString()
+}
+
+// * start auto refresh
+
+function startAutoRefresh() {
+  state.intervalId = setInterval(() => {
+    refresh()
+
+  }, 30000);
+}
+
 // * function for refresh 
 
 async function refresh() {
   try {
+    animateRing()
     prevCoins = [...state.coins]
 
     const [coins, global] = await Promise.all([
@@ -424,12 +464,13 @@ async function refresh() {
     state.coins = coins;
     renderCurrentView()
     updateLastUpdated()
-    animateRing()
 
     renderGlobalStats(global)
+    return true;
   }
   catch (err) {
     showToast("something went wrong!, try again after sometimes!", "error")
+    return false;
   }
 }
 
@@ -441,6 +482,7 @@ async function init() {
     state.watchlist = JSON.parse(savedCoins)
   }
   try {
+    requestAnimationFrame(() => animateRing())
     const [coins, global] = await Promise.all([
       fetchTopCoins(),
       fetchGlobalStats()
@@ -448,7 +490,6 @@ async function init() {
     state.coins = coins;
     renderTable(coins)
     updateLastUpdated()
-    animateRing()
 
     // * show dashboard data
     renderGlobalStats(global)
@@ -460,10 +501,7 @@ async function init() {
     emptyStateEl.classList.remove("hidden");
   }
 
-  state.intervalId = setInterval(() => {
-    refresh()
-
-  }, 30000);
+  startAutoRefresh()
 }
 
 

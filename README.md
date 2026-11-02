@@ -87,7 +87,7 @@ Every stage builds on the previous one. The objective is to develop a strong men
 | :-: | -------------------------------------------------------------- | ----------------------------- | :-------------------------------------------------------------------------------------------------------: | :----: |
 |  05 | [Weather Dashboard](./tier-2-asyncNapis/01-weather-dashboard/) | Async Programming & Fetch     |     [Live ↗](https://sagar-8848.github.io/javascript-projects/tier-2-asyncNapis/01-weather-dashboard/)    |    ✅   |
 |  06 | [Movie Explorer](./tier-2-asyncNapis/02-movie-explorer/)       | API Integration & Performance | [Live ↗](https://sagar-8848.github.io/javascript-projects/tier-2-asyncNapis/02-movie-explorer/index.html) |    ✅   |
-|  07 | [Crypto Dashboard](./tier-2-asyncNapis/07-crypto-dashboard/)   | Dynamic Data & UI Updates     |                                                Coming Soon                                                |    ⬜   |
+|  07 | [Crypto Dashboard](./tier-2-asyncNapis/03-crypto-dashboard/)   | Dynamic Data & UI Updates     |  [Live ↗](https://sagar-8848.github.io/javascript-projects/tier-2-asyncNapis/03-crypto-dashboard/index.html) |    ✅   |
 
 ### 🟣 Tier 3: Advanced Patterns
 
@@ -221,13 +221,13 @@ The purpose is to understand the fundamentals before relying on abstractions pro
 | Milestone                 | Progress |
 | ------------------------- | :------: |
 | Tier 1: Foundations       |    4/4   |
-| Tier 2: Async & APIs      |    2/3   |
+| Tier 2: Async & APIs      |    3/3   |
 | Tier 3: Advanced Patterns |    0/3   |
 | Tier 4: Boss Level        |    0/4   |
 | Bonus Projects            |    0/5   |
-| **Total**                 | **6/19** |
+| **Total**                 | **7/19** |
 
-`██████░░░░░░░░░░░░░` **31.6%**
+`██████░░░░░░░░░░░░░` **36.8%**
 
 > Progress reflects completed projects, not just concepts studied.
 
