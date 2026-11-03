@@ -1,7 +1,8 @@
-// app.js — Phase 1 scaffold: DOM refs and sidebar toggle wired up
-// You will fill this in phase by phase
 
-// ── DOM REFS ──────────────────────────────────────────────────
+
+// ==========================================
+// * 1. DOM ELEMENTS CACHE
+// ==========================================
 
 // Layout
 const sidebar = document.getElementById('sidebar');
@@ -24,6 +25,55 @@ const clearChatBtn = document.getElementById('clear-chat-btn');
 const messageInput = document.getElementById('message-input');
 const sendBtn = document.getElementById('send-btn');
 const charCount = document.getElementById('char-count');
+
+// ==========================================
+// * 2. STATE & CONFIG
+// ==========================================
+
+const state = {
+  messages: [],   // array of { role, text, time }
+}
+const BOT_REPLIES = ["That's interesting! Tell me more.",
+  "I'm a Phase 2 mock bot — real AI coming in Phase 3!",
+  "Hmm, can you explain what you mean by that?",
+  "I hear you. What else is on your mind?",
+  "Beep boop. Just pretending to think. 🤖"
+]
+
+
+// ==========================================
+// * 3. UTILITIES
+// ==========================================
+
+// ? format timeStamp 
+function formatTime(timestamp) {
+  const formattedTimestamp = new Date(timestamp);
+  return formattedTimestamp.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false })
+}
+
+// ? Show Toast
+let toastTimer;
+function showToast(msg, type) {
+  clearTimeout(toastTimer);
+  toastMsg.textContent = msg;
+  toast.className = `toast ${type}`;
+  toast.classList.remove("hidden");
+  toastTimer = setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 2000);
+}
+
+// ==========================================
+// * 4. API LAYER
+// ==========================================
+
+// Phase 3 will add: async function callGemini(prompt) { ... }
+// Phase 2: function getBotReply() { ... } — picks a random canned response
+
+
+// ==========================================
+// * 5. UI CONTROLLER
+// ==========================================
 
 // ── SIDEBAR TOGGLE (Phase 1 — already works) ──────────────────
 function openSidebar() {
@@ -80,8 +130,10 @@ messageInput.addEventListener('input', () => {
   }
 });
 
-// ── YOUR JS STARTS HERE ───────────────────────────────────────
-// Phase 2: sendMessage(), renderMessage(), typing indicator
-// Phase 3: callGemini() with real API
-// Phase 4: multi-conversation state + localStorage
-// Phase 5: markdown rendering, copy button, polish
+
+// ==========================================
+// * 7. INIT
+// ==========================================
+
+function init() { }
+init()
