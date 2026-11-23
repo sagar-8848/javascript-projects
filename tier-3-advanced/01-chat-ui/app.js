@@ -52,16 +52,16 @@ function formatTime(timestamp) {
 }
 
 // ? Show Toast
-let toastTimer;
-function showToast(msg, type) {
-  clearTimeout(toastTimer);
-  toastMsg.textContent = msg;
-  toast.className = `toast ${type}`;
-  toast.classList.remove("hidden");
-  toastTimer = setTimeout(() => {
-    toast.classList.add("hidden");
-  }, 2000);
-}
+// let toastTimer;
+// function showToast(msg, type) {
+//   clearTimeout(toastTimer);
+//   toastMsg.textContent = msg;
+//   toast.className = `toast ${type}`;
+//   toast.classList.remove("hidden");
+//   toastTimer = setTimeout(() => {
+//     toast.classList.add("hidden");
+//   }, 2000);
+// }
 
 // ==========================================
 // * 4. API LAYER
@@ -89,6 +89,15 @@ function closeSidebar() {
   setTimeout(() => { sidebarOverlay.style.display = 'none'; }, 220);
   sidebarToggle.setAttribute('aria-expanded', 'false');
 }
+
+function renderMessage(msg){
+
+}
+
+
+// ==========================================
+// * 6. MANAGER & LISTENERS
+// ==========================================
 
 sidebarToggle.addEventListener('click', openSidebar);
 sidebarClose.addEventListener('click', closeSidebar);
