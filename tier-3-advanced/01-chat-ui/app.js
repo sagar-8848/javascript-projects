@@ -70,8 +70,15 @@ function formatTime(timestamp) {
 // Phase 3 will add: async function callGemini(prompt) { ... }
 // Phase 2: function getBotReply() { ... } — picks a random canned response
 
+// * bot reply
 
-// ==========================================
+function getBotReply() {
+  const randomIndex = Math.floor(Math.random() * BOT_REPLIES.length)
+  return BOT_REPLIES[randomIndex]
+}
+
+
+// ================S==========================
 // * 5. UI CONTROLLER
 // ==========================================
 
@@ -90,11 +97,30 @@ function closeSidebar() {
   sidebarToggle.setAttribute('aria-expanded', 'false');
 }
 
-function renderMessage(msg){
+function renderMessage(msg) {
+
+  // make the welcome state hidden
+  welcomeState.classList.add("hidden")
+
+  const avatar = msg.role === "user" ? "S" : "🤖"
+  const time = formatTime(msg.time)
+  const html = `
+  <div class="message message--${msg.role}">
+    <div class="message__avatar">${avatar}</div>
+    <div class="message__body">
+      <div class="message__bubble">${msg.text}</div>
+      <div class="message__time">${time}</div>
+    </div>
+  </div>
+`
+
+  messagesEl.insertAdjacentHTML("beforeend", html)
+  messagesWrap.scrollTop = messagesWrap.scrollHeight;
 
 }
 
-
+renderMessage({ role: "user", text: "Hello there!", time: Date.now() })
+renderMessage({ role: "bot", text: "Hi! Ready when you are.", time: Date.now() })
 // ==========================================
 // * 6. MANAGER & LISTENERS
 // ==========================================
@@ -140,6 +166,33 @@ messageInput.addEventListener('input', () => {
 });
 
 
+// * handle Message function 
+
+function handleSendMessage() {
+  const text = messageInput.value.trim();
+  if (!text) return;
+
+  const userMsg = { role: "user", text, time: Date.now() };
+  state.messages.push(userMsg);
+  renderMessage(userMsg)
+  messageInput.value = "";
+  messageInput.style.height = "auto"
+  sendBtn.disabled = true;
+  charCount.textContent = "";
+  const replyText = getBotReply();
+  const botMsg = { role: "bot", text: replyText, time: Date.now() };
+  state.messages.push(botMsg);
+  renderMessage(botMsg)
+}
+
+sendBtn.addEventListener("click", handleSendMessage)
+
+messageInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault()
+    handleSendMessage()
+  }
+})
 // ==========================================
 // * 7. INIT
 // ==========================================
